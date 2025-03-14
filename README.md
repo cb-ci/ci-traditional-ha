@@ -367,7 +367,7 @@ docker-compose stop ha-client-controller-1 # or ha-client-controller-2 depending
 
 ## Reconnect Controllers to CJOC 
 
-Ü https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/operations-center/how-do-i-reconnect-a-controller-to-joc-after-changing-joc-to-https#_if_client_controller_is_not_accessible_from_the_ui 
+* https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/operations-center/how-do-i-reconnect-a-controller-to-joc-after-changing-joc-to-https#_if_client_controller_is_not_accessible_from_the_ui 
 
 ## Curl to inspect headers
 
