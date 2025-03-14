@@ -509,6 +509,7 @@ References we have used for the development of this demo environment:
 
 # TODO and next steps
 
-[] Test/update to run on Linux (whatever)
-[] Verify to introduce NFS
-[x] Enable SSL on HAPRoxy (self-signed certs?)
+* [] Test/update to run on Linux (whatever)
+* [] Verify to introduce NFS
+* [] Consider to replace [docker-compose.yaml.template](docker-compose.yaml.template) with https://docs.docker.com/reference/compose-file/interpolation/
+* [x] Enable SSL on HAPRoxy (self-signed certs?)

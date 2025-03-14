@@ -5,7 +5,8 @@
 
 # ! Do not modify docker-compose.yaml directly, it wil be overwritten by up.sh. Instead, modify this template and env.sh
 
-version: '3'
+# version attribute is deprecated
+#version: '3'
 services:
   operations-center:
     image: ${DOCKER_IMAGE_OC}
