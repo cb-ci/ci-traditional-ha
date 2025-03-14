@@ -83,7 +83,7 @@ The Operations Center and both controllers are behind HAProxy.
     * requires:   
       * OpenSSL (to create a self-signed certificate)
       * Environment variable: JAVA_HOME referencing to a supported jdk (currently Java 17)
-  * Optional: To make the certificate trusted see [When-using-self-singed-certificate-(HTTPS-mode)](###Option:-When-using-self-singed-certificate-(HTTPS-mode))
+  * Optional: To make the certificate trusted see [When-using-self-singed-certificate-(HTTPS-mode)](https://github.com/cb-ci/ci-traditional-ha?tab=readme-ov-file#option-when-using-self-singed-certificate-https-mode)
 
 # Quick Start
 
