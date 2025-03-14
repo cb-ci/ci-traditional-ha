@@ -42,7 +42,7 @@ items:
                                 echo "Running... $(($(date +%s) - start_time)) seconds elapsed"
                                 printf '%s %s\n' "$(date) Running on Agent-Pod: $(hostname)"
                                 # sleep for X sec, kill the active replica now and check if SSH agent gets reconnected to the other replica
-                                sleep 2
+                                sleep 10
                             done    
                         '''
                         controllerHostName()
