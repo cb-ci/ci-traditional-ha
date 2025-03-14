@@ -23,17 +23,17 @@ pipeline {
                 controllerHostName()
                 //Print agent hostname to console and pause the build for X seconds
                 sh '''
-                            # set +x
-                            # Get the current time in seconds since epoch
-                            start_time=$(date +%s)
-                            # Loop until 60 seconds have passed
-                            while [ $(($(date +%s) - start_time)) -lt 60 ]; do
-                                echo "Running... $(($(date +%s) - start_time)) seconds elapsed"
-                                printf '%s %s\n' "$(date) Running on Agent-Pod: $(hostname)"
-                                # sleep for X sec, kill the active replica now and check if SSH agent gets reconnected to the other replica
-                                sleep 2
-                            done    
-                        '''
+                    # set +x
+                    # Get the current time in seconds since epoch
+                    start_time=$(date +%s)
+                    # Loop until 60 seconds have passed
+                    while [ $(($(date +%s) - start_time)) -lt 60 ]; do
+                        echo "Running... $(($(date +%s) - start_time)) seconds elapsed"
+                        printf '%s %s\n' "$(date) Running on Agent-Pod: $(hostname)"
+                        # sleep for X sec, kill the active replica now and check if SSH agent gets reconnected to the other replica
+                        sleep 2
+                    done    
+                '''
                 controllerHostName()
             }
         }
