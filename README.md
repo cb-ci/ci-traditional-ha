@@ -30,11 +30,11 @@ Two models are supported:
 The setup consists of the following containers:
 
 * Operations Center
-* Controller 1
-* Controller 2
+* Controller Replica 1
+* Controller Replica 2
 * SSH-Agent 1
 * HAProxy Load Balancer
-* Optional: Linux box with Firefox accessible via VNC from an external browser
+* Optional: [Linux box with Chromium](https://docs.linuxserver.io/images/docker-webtop/#lossless-mode) accessible from your browser
 
 The setup is self-sufficient and does not require any modifications on the Docker host or anywhere else outside of the docker compose environment.
 There are two exceptions to highlight:
