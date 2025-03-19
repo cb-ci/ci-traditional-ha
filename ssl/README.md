@@ -107,6 +107,7 @@ In Java, **Truststore** and **Keystore** are both used to manage certificates an
 | **Default File**     | No default; user-specified         | `cacerts` (default truststore)    |
 | **System Property**  | `javax.net.ssl.keyStore`           | `javax.net.ssl.trustStore`        |
 
+
 ---
 
 ### **When Both Are Used**
@@ -116,6 +117,7 @@ In scenarios like **mutual TLS authentication**, both keystore and truststore ar
 
 ---
 
+
 ### **Practical Example**
 #### Server-Side Example (HTTPS Server):
 - **Keystore:** Stores the server's SSL certificate and private key to identify itself to clients.
@@ -124,8 +126,6 @@ In scenarios like **mutual TLS authentication**, both keystore and truststore ar
 #### Client-Side Example (Java Client using SSL):
 - **Keystore:** If the client needs to authenticate to the server, it provides its own certificate and private key from the keystore.
 - **Truststore:** Verifies the server's certificate.
-
-Let me know if you'd like to see specific commands or code examples for managing these stores!
 
 # Certificates
 
@@ -213,6 +213,94 @@ These files are commonly associated with SSL/TLS certificates and keys. Here's w
    ```bash
    openssl pkcs12 -export -in jenkins.pem -out jenkins.p12 -name "JenkinsCert"
    ```
+
+
+## -Djavax.net.ssl.keyStore= vs JENKINS_ARGS="--httpsKeyStore=...."
+In Jenkins, both JAVA_OPTS and JENKINS_ARGS can influence how SSL/TLS is configured, but they operate at different levels, and one can override the other depending on the context.
+
+Differences & Relationship:
+JAVA_OPTS="In Jenkins, both JAVA_OPTS and JENKINS_ARGS can influence how SSL/TLS is configured, but they operate at different levels, and one can override the other depending on the context.
+
+Differences & Relationship:
+JAVA_OPTS=" -Djavax.net.ssl.keyStore=..."
+
+This is a JVM-level setting.
+It configures the Java process itself to use a specific keystore for SSL/TLS operations.
+This applies broadly to any Java-based HTTPS communication (including internal libraries or plugins that rely on Java's built-in SSL support).
+JENKINS_ARGS="--httpsKeyStore=..."
+
+This is a Jenkins-specific argument passed to jenkins.war when it runs.
+It explicitly tells Jenkins (when running in standalone mode using its built-in Winstone servlet container) which keystore to use for serving HTTPS.
+Which One "Wins"?
+If Jenkins is running in standalone mode (java -jar jenkins.war), then JENKINS_ARGS="--httpsKeyStore=..." takes precedence because Jenkins itself is responsible for managing SSL.
+If Jenkins is running inside a servlet container (e.g., Tomcat, WildFly, or another application server), then JAVA_OPTS will be used because the SSL settings are controlled by the underlying JVM and not Jenkins itself.
+If both are set in standalone mode, --httpsKeyStore should take precedence for Jenkins’ web UI, but JAVA_OPTS may still affect other Java-based SSL operations within Jenkins (e.g., plugins making outbound HTTPS connections).
+Recommendation:
+If you're running Jenkins in standalone mode, use --httpsKeyStore=... in JENKINS_ARGS.
+If you're using a servlet container, rely on JAVA_OPTS or configure SSL at the container level...."
+
+This is a JVM-level setting.
+It configures the Java process itself to use a specific keystore for SSL/TLS operations.
+This applies broadly to any Java-based HTTPS communication (including internal libraries or plugins that rely on Java's built-in SSL support).
+JENKINS_ARGS="--httpsKeyStore=..."
+
+This is a Jenkins-specific argument passed to jenkins.war when it runs.
+It explicitly tells Jenkins (when running in standalone mode using its built-in Winstone servlet container) which keystore to use for serving HTTPS.
+Which One "Wins"?
+If Jenkins is running in standalone mode (java -jar jenkins.war), then JENKINS_ARGS="--httpsKeyStore=..." takes precedence because Jenkins itself is responsible for managing SSL.
+If Jenkins is running inside a servlet container (e.g., Tomcat, WildFly, or another application server), then JAVA_OPTS will be used because the SSL settings are controlled by the underlying JVM and not Jenkins itself.
+If both are set in standalone mode, --httpsKeyStore should take precedence for Jenkins’ web UI, but JAVA_OPTS may still affect other Java-based SSL operations within Jenkins (e.g., plugins making outbound HTTPS connections).
+Recommendation:
+If you're running Jenkins in standalone mode, use --httpsKeyStore=... in JENKINS_ARGS.
+If you're using a servlet container, rely on JAVA_OPTS or configure SSL at the container level.
+
+## Notes
+
+The commands we will test in our session:
+
+For each Server in (CJOC, Controller Replica1, Controller Replica2)
+
+Verify the path to cacerts and jenkins.jks adjusted in
+
+```
+/etc/sysconfig/cloudbees-core-cm (for Controller_replica1 and Controller_replica2)
+/etc/sysconfig/cloudbees-core-oc (for Cjoc)
+```
+
+
+## Verify SAN entries in cacerts
+
+```
+keytool -exportcert -keystore cacerts -storepass changeit -alias jenkins -rfc -file cacerts.pem
+openssl x509 -in cacerts.pem -text -noout | grep -A 1 "Subject Alternative Name"
+```
+
+
+## Verify SAN entries in jenkins.jks
+
+```
+keytool -exportcert -keystore jenkins.jks -storepass changeit -alias jenkins -file jkscert.pem -rfc
+openssl x509 -in jkscert.pem -text -noout | grep -A 1 "Subject Alternative Name"
+```
+
+
+## Verify the Chain Using OpenSSL
+
+* extract the whole chain and verify it using:
+
+```
+openssl verify -CAfile ca.pem jkscert.pem
+```
+
+(Where ca.pem contains the root and intermediate certificates.)
+
+
+## Download certificate and verify SAN (LB)
+
+```
+openssl s_client -showcerts -connect <LB_FQDN>:443 /dev/null|openssl x509 -outform PEM > lbcert.pem
+openssl x509 -in lbcert.pem -text -noout | grep -A 1 "Subject Alternative Name"
+```
 
 
 
