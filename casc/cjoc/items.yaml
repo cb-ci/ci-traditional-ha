@@ -21,3 +21,24 @@ items:
       optOut: false
   - webSocket:
       enabled: true
+- kind: sharedAgent
+  name: mySharedAgent
+  description: ''
+  displayName: mySharedAgent
+  labels: mySharedAgent
+  launcher:
+    inboundAgent:
+      webSocket: false
+      agentStartupOptions: -webSocket
+      workDirSettings:
+        remotingWorkDirSettings:
+          internalDir: remoting
+          disabled: false
+          failIfWorkDirIsMissing: false
+      vmargs: -Djava.security.debug=jca -Djavax.net.ssl.keyStoreType=PKCS12 -Djavax.net.ssl.trustStoreType=PKCS12  -Djavax.net.debug=ssl,handshake -Djavax.net.ssl.keyStore=/tmp/jenkins.p12  -Djavax.net.ssl.trustStore=/tmp/cacerts  -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStorePassword=changeit
+  mode: NORMAL
+  numExecutors: 1
+  remoteFS: /tmp
+  retentionStrategy:
+    always: {
+    }

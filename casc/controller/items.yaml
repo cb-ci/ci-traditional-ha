@@ -3,7 +3,7 @@ removeStrategy:
   items: NONE
 items:
 - kind: pipeline
-  name: testpipeline
+  name: testSSHAgent
   concurrentBuild: true
   definition:
     cpsFlowDefinition:
@@ -53,10 +53,29 @@ items:
 
   description: ''
   disabled: false
-  displayName: testpipeline
-#  properties:
-#  - pipelineTriggers:
-#      triggers:
-#      - cron:
-#          spec: '* * * * *'
+  displayName: testSharedAgent
   resumeBlocked: false
+- kind: pipeline
+  name: testSharedAgent
+  concurrentBuild: true
+  definition:
+    cpsFlowDefinition:
+      sandbox: true
+      script: |
+        pipeline {
+            agent {
+                label 'mySharedAgent'
+            }
+            stages {
+                stage('Hello') {
+                    steps {
+                        echo 'Hello World'
+                    }
+                }
+            }
+        }
+  description: ''
+  disabled: false
+  displayName: testSharedAgent
+  resumeBlocked: false
+
