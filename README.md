@@ -8,6 +8,7 @@ See these links for the background details
 * https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-considerations
 * https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/get-ready-for-ha
 * https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional
+* https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/how-to-setup-https-within-jetty 
 
 # Architecture
 
@@ -98,6 +99,7 @@ The Operations Center and both controllers are behind HAProxy.
   * Option HTTPS mode: Run `./up.sh ssl=true` to start in HTTPS mode. 
     * You need to create first a certificate
     *  ```cd ssl && ./ssl/01-createSelfSigned.sh```
+    * see also https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/how-to-setup-https-within-jetty 
 * The following steps will be executed by the `up.sh` script
   * The persistent volumes will be created 
   * The related containers will start now. This might take some minutes because the required containers get pulled the first time to your docker host

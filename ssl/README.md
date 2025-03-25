@@ -15,6 +15,7 @@ This directory contains some resources to test running CloudBees on Port 443 by 
 The self singed cert has already the SAN (Server alias names) as DNS entries included (see [env-ssl.sh](../env-ssl.sh))
 
 # Links
+* https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/how-to-setup-https-within-jetty 
 * https://www.jenkins.io/doc/book/system-administration/reverse-proxy-configuration-with-jenkins/reverse-proxy-configuration-haproxy/
 * https://www.jenkins.io/doc/book/installing/initial-settings/#configuring-http
 * [1_Using_SSL_Certificates_with_HAProxy.pdf](1_Using_SSL_Certificates_with_HAProxy.pdf)

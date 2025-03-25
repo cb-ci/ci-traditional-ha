@@ -3,7 +3,7 @@
 set +x
 
 echo "#### Common SSL Options for Controllers and Cjoc"
-
+# see also https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/how-to-setup-https-within-jetty
 #export KEYSTORE="/tmp/jenkins.jks"
 export KEYSTORE="/tmp/jenkins.p12"
 export TRUSTSTORE="/tmp/cacerts"
