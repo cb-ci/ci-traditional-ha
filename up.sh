@@ -87,7 +87,7 @@ if [[ $SSL == true ]]; then
   mkdir -p $HAPROXY_PERSISTENCE/etc/ssl/certs
   #Copy cert pem to alpines /usr/local/share/ca-certificates/ directory because HAProxy must trust this cert in the backend and fronted
   #cp -v ssl/jenkins.pem  $HAPROXY_PERSISTENCE/usr/local/share/ca-certificates/
-  cp -v ssl/jenkins.pem  $HAPROXY_PERSISTENCE/etc/ssl/certs
+  cp -v ssl/haproxy.pem  $HAPROXY_PERSISTENCE/etc/ssl/certs
 fi
 
 

@@ -18,6 +18,7 @@ The self singed cert has already the SAN (Server alias names) as DNS entries inc
 * https://www.jenkins.io/doc/book/system-administration/reverse-proxy-configuration-with-jenkins/reverse-proxy-configuration-haproxy/
 * https://www.jenkins.io/doc/book/installing/initial-settings/#configuring-http
 * [1_Using_SSL_Certificates_with_HAProxy.pdf](1_Using_SSL_Certificates_with_HAProxy.pdf)
+* https://www.pixelstech.net/article/1408345768-Different-types-of-keystore-in-Java----Overview 
 
 # Java SSL Properties
 
@@ -299,6 +300,7 @@ openssl verify -CAfile ca.pem jkscert.pem
 
 ```
 openssl s_client -showcerts -connect <LB_FQDN>:443 /dev/null|openssl x509 -outform PEM > lbcert.pem
+openssl s_client -showcerts -connect client.ha:443 -outform PEM  </dev/null  > lbcert.pem
 openssl x509 -in lbcert.pem -text -noout | grep -A 1 "Subject Alternative Name"
 ```
 

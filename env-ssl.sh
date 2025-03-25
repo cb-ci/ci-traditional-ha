@@ -4,11 +4,13 @@ set +x
 
 echo "#### Common SSL Options for Controllers and Cjoc"
 
-export KEYSTORE="/tmp/jenkins.jks"
-export CACERTS="/tmp/cacerts"
-export KEYSTORE_PW="changeit"
-export JENKINS_SSL_OPTS="--httpPort=-1 --httpsKeyStore=$KEYSTORE --httpsKeyStorePassword=$KEYSTORE_PW  --httpsPort=8443"
-export JAVA_SSL_OPTS="-Djenkins.model.Jenkins.crumbIssuerProxyCompatibility=true -DexecutableWar.jetty.disableCustomSessionIdCookieName=true  -Djavax.net.ssl.keyStore=$CACERTS -Djavax.net.ssl.keyStorePassword=$KEYSTORE_PW  -Djavax.net.ssl.trustStore=$CACERTS -Djavax.net.ssl.trustStorePassword=$KEYSTORE_PW -Djavax.net.ssl.trustStoreType=JKS"
+#export KEYSTORE="/tmp/jenkins.jks"
+export KEYSTORE="/tmp/jenkins.p12"
+export TRUSTSTORE="/tmp/cacerts"
+# in our case: keyStorePassword = trustStorePassword
+export STORE_PW="changeit"
+export JENKINS_SSL_OPTS="--httpPort=-1 --httpsKeyStore=$KEYSTORE --httpsKeyStorePassword=$STORE_PW  --httpsPort=8443"
+export JAVA_SSL_OPTS="-Djenkins.model.Jenkins.crumbIssuerProxyCompatibility=true -DexecutableWar.jetty.disableCustomSessionIdCookieName=true  -Djavax.net.ssl.keyStore=$KEYSTORE -Djavax.net.ssl.keyStorePassword=$STORE_PW  -Djavax.net.ssl.trustStore=$TRUSTSTORE -Djavax.net.ssl.trustStorePassword=$STORE_PW -Djavax.net.ssl.keyStoreType=PKCS12 -Djavax.net.ssl.trustStoreType=PKCS12" # JKS#
 
 ########################################################################################################################
 

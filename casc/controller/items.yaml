@@ -78,4 +78,28 @@ items:
   disabled: false
   displayName: testSharedAgent
   resumeBlocked: false
+- kind: pipeline
+  name: testInbound
+  concurrentBuild: true
+  definition:
+    cpsFlowDefinition:
+      sandbox: true
+      script: |
+        pipeline {
+            agent {
+                label 'staticInbound'
+            }
+            stages {
+                stage('Hello') {
+                    steps {
+                        echo 'Hello World'
+                    }
+                }
+            }
+        }
+  description: ''
+  disabled: false
+  displayName: testInbound
+  resumeBlocked: false
+
 

@@ -29,8 +29,8 @@ export DOCKER_IMAGE_CLOUDBEES_TAG=2.492.1.3-jdk21
 # CB CI version for Operations Center and Controllers
 export DOCKER_IMAGE_OC=cloudbees/cloudbees-core-oc:${DOCKER_IMAGE_CLOUDBEES_TAG}
 export DOCKER_IMAGE_CLIENT_CONTROLLER=cloudbees/cloudbees-core-cm:${DOCKER_IMAGE_CLOUDBEES_TAG}
-# SSH AGENT see https://hub.docker.com/r/jenkins/ssh-agent
-export DOCKER_IMAGE_JENKINS_SSH_AGENT=jenkins/ssh-agent:jdk21 #:jdk71
+# https://hub.docker.com/r/jenkins/ssh-agent
+export DOCKER_IMAGE_JENKINS_SSH_AGENT=jenkins/ssh-agent:jdk21 #:jdk17
 export DOCKER_IMAGE_HAPROXY=haproxy:alpine
 # see https://docs.linuxserver.io/images/docker-webtop/#version-tags
 export DOCKER_IMAGE_BROWSER_BOX=lscr.io/linuxserver/webtop:latest

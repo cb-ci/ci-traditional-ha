@@ -20,3 +20,5 @@ docker-compose.yaml
 /ssl/jenkins.csr
 /ssl/jenkins.crt
 /README_INTERNALNOTES.md
+/casc/cjoc-hdfc/
+/casc/controller-HDFC/

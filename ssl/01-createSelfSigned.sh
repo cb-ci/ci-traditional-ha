@@ -88,9 +88,10 @@ keytool -importkeystore -destkeystore jenkins.jks -srckeystore jenkins.p12 -srcs
 
 # create pem file, includes private key and certificate
 # PEM  will be referenced by HApproxy and by the patched cacerts
-cat jenkins.crt jenkins.key > jenkins.pem
+cat jenkins.crt jenkins.key > haproxy.pem
+cat jenkins.crt > jenkins.pem
 # Add the pem file to the cacerts
 #keytool -delete -noprompt -alias jenkins -keystore cacerts -storepass changeit
-keytool -import -noprompt -keystore cacerts -file jenkins.pem -storepass changeit -alias jenkins;
+keytool -import -noprompt -keystore cacerts -file jenkins.pem -storepass changeit -alias jenkins
 
 

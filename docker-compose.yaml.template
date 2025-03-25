@@ -29,6 +29,7 @@ services:
     - ${OC_PERSISTENCE}:/var/jenkins_home
     #{% if ssl == "true" %}
     - ./ssl/jenkins.jks:/tmp/jenkins.jks
+    - ./ssl/jenkins.p12:/tmp/jenkins.p12
     - ./ssl/cacerts:/tmp/cacerts
       # {% endif %}
     networks:
@@ -62,6 +63,7 @@ services:
     - ${CONTROLLER1_CACHES}:/var/cache/cloudbees-core-cm
     #{% if ssl == "true" %}
     - ./ssl/jenkins.jks:/tmp/jenkins.jks
+    - ./ssl/jenkins.p12:/tmp/jenkins.p12
     - ./ssl/cacerts:/tmp/cacerts
    # {% endif %}
     networks:
@@ -97,6 +99,7 @@ services:
     - ${CONTROLLER2_CACHES}:/var/cache/cloudbees-core-cm
     #{% if ssl == "true" %}
     - ./ssl/jenkins.jks:/tmp/jenkins.jks
+    - ./ssl/jenkins.p12:/tmp/jenkins.p12
     - ./ssl/cacerts:/tmp/cacerts
     # {% endif %}
     networks:
@@ -116,12 +119,13 @@ services:
     environment:
       - JENKINS_AGENT_SSH_PUBKEY=${JENKINS_AGENT_SSH_PUBKEY}
 
+
   haproxy:
     image: ${DOCKER_IMAGE_HAPROXY}
     volumes:
       - ${HA_PROXY_CONFIG}:/usr/local/etc/haproxy/haproxy.cfg
     #{% if ssl == "true" %}
-      - ./ssl/jenkins.pem:/tmp/jenkins.pem
+      - ./ssl/haproxy.pem:/etc/ssl/certs/haproxy.pem
     # {% endif %}
     ports:
       - "${HA_PROXY_BIND_PORT}:${HA_PROXY_BIND_PORT}"
