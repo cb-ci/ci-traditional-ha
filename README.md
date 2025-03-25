@@ -6,6 +6,7 @@ See these links for the background details
 
 * https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-fundamentals
 * https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-considerations
+* https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/get-ready-for-ha
 * https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional
 
 # Architecture
