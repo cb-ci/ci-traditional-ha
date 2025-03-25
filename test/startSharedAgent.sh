@@ -5,8 +5,13 @@ curl -kO https://oc.ha/jnlpJars/agent.jar
 chmod 755 agent.jar
 # In case using HTTP
 export JAVA_OPTS=""
+
 # In case using HTTPS TLS
-export JAVA_OPTS="-Djava.security.debug=jca  -Djavax.net.debug=ssl,handshake  -Djavax.net.ssl.trustStore=$(pwd)/../ssl/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
+# we copy the cacerts and jenkins.p12  to /tmp because the agent references the the truststore and keystore in the shared agent agent vmargs  , see cjoc casc bundle -> items.yaml _> shared cloud config
+cp $(pwd)/../ssl/cacerts  /tmp/
+cp $(pwd)/../ssl/jenkins.p12  /tmp/
+# for debugging: -Djava.security.debug=jca  -Djavax.net.debug=ssl,handshake
+export JAVA_OPTS="-Djavax.net.ssl.trustStore=/tmp/cacerts -Djavax.net.ssl.trustStorePassword=changeit"
 
 export JAVA_TOOL_OPTIONS=$JAVA_OPTS
 java -jar agent.jar -url https://oc.ha/ -name mySharedAgent  -webSocket  -secret ${SECRET} -workDir /tmp
