@@ -1,6 +1,5 @@
 #! /bin/bash
 
-source ./
 
 #Create an agent node first in controller
 export SECRET=${1:-"YOUR_AGENT_SECRET"}
