@@ -1,5 +1,6 @@
 #! /bin/bash
 
+
 export TOKEN="<ADMIN_ID>:<TOKENXXXXXX>"
 export CJOC_URL="https://<CJOC_URL>"
 export SHARED_AGENT_NAME="SharedAgentTest"
