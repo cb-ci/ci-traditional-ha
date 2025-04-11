@@ -2,8 +2,9 @@
 
 
 export TOKEN="<ADMIN_ID>:<TOKENXXXXXX>"
-export CJOC_URL="https://<CJOC_URL>"
+export CJOC_URL="https://oc.ha"
 export SHARED_AGENT_NAME="SharedAgentTest"
+export SHARED_AGENT_LABEL="shared-agent"
 export SHARED_AGENT_REMOTE_FS="/tmp"
 
 #  -Djavax.net.debug=ssl,handshake -Djava.security.debug=jca
@@ -27,10 +28,10 @@ items:
   name: ${SHARED_AGENT_NAME}
   description: ''
   displayName: ${SHARED_AGENT_NAME}
-  labels: 'testlabel'
+  labels: ${SHARED_AGENT_LABEL}
   launcher:
     inboundAgent:
-      webSocket: false
+      webSocket: true
       agentStartupOptions: -webSocket
       workDirSettings:
         remotingWorkDirSettings:
