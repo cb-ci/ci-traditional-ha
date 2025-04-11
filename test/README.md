@@ -75,3 +75,33 @@ CONTROLLER_STICKY_COOKIE:    cloudbees_sticky=client_controller_2;
 #######################################
 ....
 ```
+
+# Seen issues
+
+## Shared Agent
+
+May take up 5 min in some cases , until the Agent reconnects
+
+```
+Resuming build at Fri Apr 11 15:57:36 UTC 2025 after Jenkins restart
+Waiting for reconnection of SharedAgentTest before proceeding with build
+SharedAgentTest has been removed for 5 min 0 sec; assuming it is not coming back, and terminating node step
+Could not connect to SharedAgentTest to send interrupt signal to process
+Ready to run at Fri Apr 11 16:02:37 UTC 2025
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] }
+Timeout waiting for agent to come back
+org.jenkinsci.plugins.workflow.actions.ErrorAction$ErrorId: 2ee58005-066a-4fa6-a1f4-fe9ad8edddbb
+Retrying
+[Pipeline] {
+[Pipeline] node
+Still waiting to schedule task
+‘SharedAgentTest’ is offline
+Running on SharedAgentTest in /tmp/bb699d86/workspace/testAgent
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Stage1)
+```
