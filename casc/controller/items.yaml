@@ -3,27 +3,31 @@ removeStrategy:
   items: NONE
 items:
 - kind: pipeline
-  name: testSSHAgent
+  name: testAgent
   concurrentBuild: true
   definition:
     cpsFlowDefinition:
       sandbox: true
       script: |
-        //Print Controller hostname to console, requires script approval!
+       //Print Controller hostname to console, requires script approval!
         def controllerHostName(){           
             def hostname = InetAddress.getLocalHost().getHostName()
             echo "Jenkins Controller Hostname: ^${hostname}"
         }
         /**
-         * Request was, if an pipeline using an SSH Agent gets reconnected to the next replica when the active replica fails
+         * Request was, if an pipeline using an Agent gets reconnected to the next replica when the active replica fails
          */
         pipeline {
             agent {
-                /**
-                 * This label reference an SSH agent
-                 */
-                label "ssh-agent"
+              label {
+                label "${params.agentlabel}"
+                retries 3
+              }
             }
+            parameters {
+              choice choices: ['ssh-agent', 'static-inbound-agent', 'shared-agent'], description: 'agent label to be used', name: 'agentlabel'
+            }
+        
             /** trigger every minute  
             triggers {
                 cron '* * * * *'
@@ -51,55 +55,8 @@ items:
             }
         }
 
-  description: ''
-  disabled: false
-  displayName: testSharedAgent
-  resumeBlocked: false
-- kind: pipeline
-  name: testSharedAgent
-  concurrentBuild: true
-  definition:
-    cpsFlowDefinition:
-      sandbox: true
-      script: |
-        pipeline {
-            agent {
-                label 'mySharedAgent'
-            }
-            stages {
-                stage('Hello') {
-                    steps {
-                        echo 'Hello World'
-                    }
-                }
-            }
-        }
-  description: ''
-  disabled: false
-  displayName: testSharedAgent
-  resumeBlocked: false
-- kind: pipeline
-  name: testInbound
-  concurrentBuild: true
-  definition:
-    cpsFlowDefinition:
-      sandbox: true
-      script: |
-        pipeline {
-            agent {
-                label 'staticInbound'
-            }
-            stages {
-                stage('Hello') {
-                    steps {
-                        echo 'Hello World'
-                    }
-                }
-            }
-        }
-  description: ''
-  disabled: false
-  displayName: testInbound
-  resumeBlocked: false
 
-
+  description: ''
+  disabled: false
+  displayName: test-agent
+  resumeBlocked: false
