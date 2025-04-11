@@ -18,12 +18,7 @@ items:
          * Request was, if an pipeline using an Agent gets reconnected to the next replica when the active replica fails
          */
         pipeline {
-            agent {
-              label {
-                label "${params.agentlabel}"
-                retries 3
-              }
-            }
+            agent none
             parameters {
               choice choices: ['ssh-agent', 'static-inbound-agent', 'shared-agent'], description: 'agent label to be used', name: 'agentlabel'
             }
@@ -34,6 +29,12 @@ items:
             }*/
             stages {
                 stage('Stage1') {
+                    agent {
+                       label {
+                         label "${params.agentlabel}"
+                         retries 3
+                       }
+                     }
                     steps {
                         controllerHostName()
                         //Print agent hostname to console and pause the build for X seconds
