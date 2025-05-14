@@ -38,11 +38,11 @@ security:
         canCustomMapping: false
         canOverride: false
         defaultMappingFactory: "restrictedEquivalentRAMF"
-license:
-  certificate: |
-    ${readFile:${JENKINS_HOME}/cb-wildcard-license.cert}
-  key: |
-    ${readFile:${JENKINS_HOME}/cb-wildcard-license.key}
+#license:
+#  certificate: |
+#    ${readFile:${JENKINS_HOME}/cb-wildcard-license.cert}
+#  key: |
+#    ${readFile:${JENKINS_HOME}/cb-wildcard-license.key}
 unclassified:
   bundleUpdateTiming:
     automaticReload: true

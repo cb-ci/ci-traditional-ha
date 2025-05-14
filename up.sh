@@ -104,21 +104,21 @@ echo "#### Check if a wildcard license exist: $CJOC_LICENSE_PRIVATE_KEY and $CJO
 #TODO: This can be improved
 # If no wild card license exist in the secrets directory, we create a dummy placeholder.
 # If we don`t do this, the Casc process complains
-if [[ ! -e "$CJOC_LICENSE_PRIVATE_KEY" && ! -e "$CJOC_LICENSE_CERTIFICATE" ]]; then
-
-cat << EOF > $CJOC_LICENSE_PRIVATE_KEY
------BEGIN RSA PRIVATE KEY-----
-Placeholder DO NOT CHANGE HERE
------END RSA PRIVATE KEY-----
-EOF
-
-cat << EOF > $CJOC_LICENSE_CERTIFICATE
------BEGIN CERTIFICATE-----
-Placeholder DO NOT CHANGE HERE
------END CERTIFICATE-----
-EOF
-
-fi
+#if [[ ! -e "$CJOC_LICENSE_PRIVATE_KEY" && ! -e "$CJOC_LICENSE_CERTIFICATE" ]]; then
+#
+#cat << EOF > $CJOC_LICENSE_PRIVATE_KEY
+#-----BEGIN RSA PRIVATE KEY-----
+#Placeholder DO NOT CHANGE HERE
+#-----END RSA PRIVATE KEY-----
+#EOF
+#
+#cat << EOF > $CJOC_LICENSE_CERTIFICATE
+#-----BEGIN CERTIFICATE-----
+#Placeholder DO NOT CHANGE HERE
+#-----END CERTIFICATE-----
+#EOF
+#
+#fi
 
 # Copy license to cjoc JENKINS_HOME, regardless if it is the CB Wildcard license or the dummy license from above
 # We will apply the license during casc startup to the operations center

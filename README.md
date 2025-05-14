@@ -68,7 +68,7 @@ The Operations Center and both controllers are behind HAProxy.
 * Web browsers, Firefox, and Chrome have been tested
 * ping (not mandatory, but used in the `up.sh` script to test name resolution)
 * ssh-keygen (`up.sh`  generates a SSH private and public key used by the SSH build agent)
-* Optional: Add a CloudBees Wildcard License to avoid the license screen.
+* Optional (DISABLED FOR NOW): Add a CloudBees Wildcard License to avoid the license screen.
   * If you don't have a license now ignore these sub-steps, you can request a trial license later in the Operations Center welcome screen
   * If you have a CloudBees wildcard license, create the following files and add the license certificate and key there
    ```
