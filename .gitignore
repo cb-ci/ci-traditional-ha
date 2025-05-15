@@ -22,3 +22,4 @@ docker-compose.yaml
 /README_INTERNALNOTES.md
 /casc/cjoc-hdfc/
 /casc/controller-HDFC/
+/cloudbees_ci_ha_volumes/
