@@ -11,14 +11,6 @@ export SSH_PUBLIC_KEY_PATH="secrets/$SSH_KEY_ID.pub"
 #export SSH_PRIVATE_KEY_PATH="$HOME/.ssh/id_rsa"
 #export SSH_PUBLIC_KEY_PATH="$HOME/.ssh/id_rsa.pub"
 
-########################################################################################################################
-
-echo "#### CHECK LICENCE AVAILABLE"
-# This is optional and not mandatory but helps you to avoid requesting a trial license on the welcome screen for each new startup in case the oc volume was deleted/recreated
-# If you have a CloudBees wildcard license, add it to this files. They will be assigned  by casc during the startup to to the operations center
-export CJOC_LICENSE_PRIVATE_KEY=secrets/cb-wildcard-license.key
-export CJOC_LICENSE_CERTIFICATE=secrets/cb-wildcard-license.cert
-
 
 ########################################################################################################################
 

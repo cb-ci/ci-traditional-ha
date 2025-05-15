@@ -100,32 +100,6 @@ mkdir -p ${OC_PERSISTENCE}/cascbundle
 # copy cjoc casc bundle to JENKINS_HOME/cascbundle
 cp -Rf casc/cjoc/*.yaml ${OC_PERSISTENCE}/cascbundle/
 
-echo "#### Check if a wildcard license exist: $CJOC_LICENSE_PRIVATE_KEY and $CJOC_LICENSE_CERTIFICATE"
-#TODO: This can be improved
-# If no wild card license exist in the secrets directory, we create a dummy placeholder.
-# If we don`t do this, the Casc process complains
-#if [[ ! -e "$CJOC_LICENSE_PRIVATE_KEY" && ! -e "$CJOC_LICENSE_CERTIFICATE" ]]; then
-#
-#cat << EOF > $CJOC_LICENSE_PRIVATE_KEY
-#-----BEGIN RSA PRIVATE KEY-----
-#Placeholder DO NOT CHANGE HERE
-#-----END RSA PRIVATE KEY-----
-#EOF
-#
-#cat << EOF > $CJOC_LICENSE_CERTIFICATE
-#-----BEGIN CERTIFICATE-----
-#Placeholder DO NOT CHANGE HERE
-#-----END CERTIFICATE-----
-#EOF
-#
-#fi
-
-# Copy license to cjoc JENKINS_HOME, regardless if it is the CB Wildcard license or the dummy license from above
-# We will apply the license during casc startup to the operations center
-# If the license is not valid (dummy license from above), you will see the License welcome screen in Cjoc where you can request a trial license
-cp -f $CJOC_LICENSE_PRIVATE_KEY ${OC_PERSISTENCE}/$(basename "$CJOC_LICENSE_PRIVATE_KEY")
-cp -f $CJOC_LICENSE_CERTIFICATE ${OC_PERSISTENCE}/$(basename "$CJOC_LICENSE_CERTIFICATE")
-
 echo "#### Create Agent volume in ${AGENT_PERSISTENCE}"
 # create dir for agent
 mkdir -p ${AGENT_PERSISTENCE}
