@@ -68,14 +68,6 @@ The Operations Center and both controllers are behind HAProxy.
 * Web browsers, Firefox, and Chrome have been tested
 * ping (not mandatory, but used in the `up.sh` script to test name resolution)
 * ssh-keygen (`up.sh`  generates a SSH private and public key used by the SSH build agent)
-* Optional (DISABLED FOR NOW): Add a CloudBees Wildcard License to avoid the license screen.
-  * If you don't have a license now ignore these sub-steps, you can request a trial license later in the Operations Center welcome screen
-  * If you have a CloudBees wildcard license, create the following files and add the license certificate and key there
-   ```
-    mkdir secrets
-    touch secrets/cb-wildcard-license.cert # Add the license certificate  
-    touch secrets/cb-wildcard-license.key  # Add the license key
-  ```
 * Optional: When using Browser on Docker Host (your Laptop)
   * This option requires changes on your host in `/etc/hosts`
   * See for details: [Use your Browser on your Docker Host](#Option2_Use_your_browser_on_your_docker_host)
@@ -131,8 +123,6 @@ The Operations Center and both controllers are behind HAProxy.
 The essential variables are explained here; for detailed settings, take a look at the `env.sh` file.
 Usually, you don't need to change something in the env settings
 
-* `CJOC_LICENSE_PRIVATE_KEY` optional: You can add your CloudBees wildcard license key to this file: secrets/cb-wildcard-license.key (you need to create this file)
-* `CJOC_LICENSE_CERTIFICATE` optional: You can add your CloudBees wildcard license certificate to this file: secrets/cb-wildcard-license.cert (you need to create this file)
 * `OC_URL` is the URL you want the Operations Center to respond on.
 * `CLIENTS_URL` is for the controllers. There is only one URL for both controllers.
 * `DOCKER_IMAGE_OC` and `DOCKER_IMAGE_CLIENT_CONTROLLER` are the CB CI versions on Operations Center and controllers
@@ -211,12 +201,6 @@ Contains the haproxy config for SSL
 
 
 [secrets](secrets)
-
-Optional, add your CloudBees Wildcard license cert and key.
-This is optional. If a wildcard license is supplied you will pass the license welcome screen on the Operations Center
-
-* secrets/cb-wildcard-license.key
-* secrets/cb-wildcard-license.cert
 
 An SSH key will also be generated into the `secrets` directory for you when you run the  `up.sh`script
 * This key will be injected automatically by casc into the Controllers SSH Credential 

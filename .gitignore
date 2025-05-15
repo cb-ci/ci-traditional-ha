@@ -4,8 +4,8 @@ docker-compose.yaml
 /secrets/acaternbergcb-wildcard-license.key
 /secrets/acaternbergcb-wildcard-license.cert
 /secrets/applyLicense.sh
-/secrets/cb-wildcard-license.cert
-/secrets/cb-wildcard-license.key
+/cb-wildcard-license.cert
+/cb-wildcard-license.key
 /CB-Wildcard-License.md
 /test/cookies.txt
 /test/headers
