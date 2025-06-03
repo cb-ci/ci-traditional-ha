@@ -1,5 +1,3 @@
-Got it! Here's the optimized and verified README.md for your GitHub repo, polished for clarity, accuracy, and professional presentation:
-
 ---
 
 # CloudBees Jenkins HTTPS Setup with Self-Signed Certificates on Port 443
@@ -171,9 +169,3 @@ openssl x509 -in lbcert.pem -text -noout | grep -A 1 "Subject Alternative Name"
   * `/etc/sysconfig/cloudbees-core-oc` (CloudBees Operations Center)
 
 ---
-
-Feel free to ask if you want me to also prepare example usage instructions or integration steps!
-
----
-
-Would you like me to generate the raw `README.md` file content so you can copy-paste it directly?
