@@ -2,6 +2,7 @@ plugins:
 - id: antisamy-markup-formatter
 - id: apache-httpcomponents-client-4-api
 - id: asm-api
+- id: audit-trail
 - id: aws-credentials
 - id: aws-java-sdk-ec2
 - id: aws-java-sdk-minimal

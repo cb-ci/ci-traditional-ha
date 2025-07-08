@@ -52,6 +52,22 @@ highAvailability:
   highAvailabilityQueueThrottler:
     maximumLoad: 0
 unclassified:
+  audit-trail:
+    displayUserName: false
+    logBuildCause: true
+    logCredentialsUsage: true
+    pattern: ".*/(?:configSubmit|doDelete|postBuildResult|enable|disable|cancelQueue|stop|toggleLogKeep|doWipeOutWorkspace|createItem|createView|toggleOffline|cancelQuietDown|quietDown|restart|exit|safeExit)/?.*"
+    loggers:
+      - console:
+          dateFormat: "yyyy-MM-dd HH:mm:ss:SSS"
+          logPrefix: "AUDIT - "
+          output: STD_OUT
+      - logFile:
+          # $class: "hudson.plugins.audit_trail.LogFileAuditLogger"
+          log: "/var/jenkins_home/audit.log"
+          limit: 10240 KB     # Muss gesetzt sein, z. B. 10 MB = 10240 KB
+          count: 5         # Anzahl der Log-Rotationen
+          logSeparator: " - "
   buildDiscarders:
     configuredBuildDiscarders:
       - "jobBuildDiscarder"
