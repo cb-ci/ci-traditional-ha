@@ -4,6 +4,7 @@
 # See curl headers: https://daniel.haxx.se/blog/2022/03/24/easier-header-picking-with-curl
 
 source ../env.sh
+source ../env-ssl.sh
 
 JENKINS_TOKEN=${1:-"YOUR_ADMIN_TOKEN"}
 if [ $# -eq 1 ]; then
@@ -59,6 +60,7 @@ do
 	    echo "CONTROLLER_REPLICA_IP:       $REPLICA_IP"
 	    echo "CONTROLLER_STICKY_COOKIE:    $STICKY_COOKIE"
 	    echo "COOKIE: $(cat cookies.txt | grep -oE ${CLIENTS_URL}.*$)"
+      #cat $RESPONSEHEADERS && cat $COOKIE
 	    #curl -u $JENKINS_USER_TOKEN  -IL $CONTROLLER_URL/api/json?pretty=true
 	fi
 	sleep $CONNECT_TIMEOUT
