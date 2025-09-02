@@ -55,6 +55,13 @@ echo "#### Create browser volume in ${BROWSER_PERSISTENCE}"
 # create dir for browser persistence
 mkdir -p ${BROWSER_PERSISTENCE}
 
+
+
+echo "#### Create Splunk related volume in $SPLUNK_PERSISTENCE"
+
+mkdir -p $SPLUNK_PERSISTENCE/var
+mkdir -p $SPLUNK_PERSISTENCE/etc
+
 echo "#### Create Controller related volumes like JENKINS_HOME and cache dirs in $PERSISTENCE_PREFIX"
 # Create cache dirs for HA Controller
 # see https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional#_java_options
@@ -69,6 +76,7 @@ createCaches () {
 #create cache dirs for controllers
 createCaches ${CONTROLLER1_CACHES}
 createCaches ${CONTROLLER2_CACHES}
+createCaches ${CONTROLLER3_CACHES}
 #create shared JENKINS_HOME
 mkdir -p ${CONTROLLER_PERSISTENCE}
 # create dir for controller casc bundle
@@ -96,9 +104,13 @@ echo "#### Create Operations Center related volumes JENKINS_HOME in ${OC_PERSIST
 # create JENKINS_HOME dir for cjoc
 mkdir -p ${OC_PERSISTENCE}
 # create dir for cjoc casc bundle
-mkdir -p ${OC_PERSISTENCE}/cascbundle
+mkdir -p ${OC_PERSISTENCE}/cascbundle/cjoc
 # copy cjoc casc bundle to JENKINS_HOME/cascbundle
-cp -Rf casc/cjoc/*.yaml ${OC_PERSISTENCE}/cascbundle/
+cp -Rf casc/cjoc/*.yaml ${OC_PERSISTENCE}/cascbundle/cjoc
+
+mkdir -p ${OC_PERSISTENCE}/cascbundle/controller/ha
+# copy cjoc casc bundle to JENKINS_HOME/cascbundle
+cp -Rf casc/controller/*.yaml ${OC_PERSISTENCE}/cascbundle/controller/ha
 
 echo "#### Create Agent volume in ${AGENT_PERSISTENCE}"
 # create dir for agent
