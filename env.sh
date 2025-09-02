@@ -7,7 +7,7 @@ echo "#### SSH Key settings"
 export SSH_KEY_ID="agent_id_rsa"
 export SSH_PRIVATE_KEY_PATH="secrets/$SSH_KEY_ID"
 export SSH_PUBLIC_KEY_PATH="secrets/$SSH_KEY_ID.pub"
-
+export JENKINS_AGENT_SSH_PUBKEY=$(cat $SSH_PUBLIC_KEY_PATH)
 #export SSH_PRIVATE_KEY_PATH="$HOME/.ssh/id_rsa"
 #export SSH_PUBLIC_KEY_PATH="$HOME/.ssh/id_rsa.pub"
 
@@ -17,7 +17,9 @@ export SSH_PUBLIC_KEY_PATH="secrets/$SSH_KEY_ID.pub"
 echo "#### Docker image settings"
 #export DOCKER_IMAGE_CLOUDBEES_TAG=latest-jdk21
 #export DOCKER_IMAGE_CLOUDBEES_TAG=2.479.3.2-jdk21
-export DOCKER_IMAGE_CLOUDBEES_TAG=2.492.1.3-jdk21
+#export DOCKER_IMAGE_CLOUDBEES_TAG=2.492.1.3-jdk21
+export DOCKER_IMAGE_CLOUDBEES_TAG=2.516.2.28983-jdk21
+#export DOCKER_IMAGE_CLOUDBEES_TAG=2.516.2.28991-jdk21
 # CB CI version for Operations Center and Controllers
 export DOCKER_IMAGE_OC=cloudbees/cloudbees-core-oc:${DOCKER_IMAGE_CLOUDBEES_TAG}
 export DOCKER_IMAGE_CLIENT_CONTROLLER=cloudbees/cloudbees-core-cm:${DOCKER_IMAGE_CLOUDBEES_TAG}
@@ -33,10 +35,13 @@ echo "#### Docker network settings"
 
 #### We put static IP addresses for docker containers
 export IP_PREFIX=172.47
+export INIT_CLIENT_IP=$IP_PREFIX.0.3
+export SPLUNK_IP=$IP_PREFIX.0.4
 export HAPROXY_IP=$IP_PREFIX.0.5
 export OC_IP=$IP_PREFIX.0.6
 export CLIENT1_IP=$IP_PREFIX.0.7
 export CLIENT2_IP=$IP_PREFIX.0.8
+export CLIENT3_IP=$IP_PREFIX.0.11
 export AGENT_IP=$IP_PREFIX.0.9
 export BROWSER_IP=$IP_PREFIX.0.10
 
@@ -49,6 +54,7 @@ echo "#### DNS/URL/PORT settings"
 # HAProxy listens for this URL and load balances between the controllers
 export OC_URL=oc.ha
 export CLIENTS_URL=client.ha
+export SPLUNK_URL=splunk
 export HA_PROXY_BIND_PORT=80
 export HTTP_PROTOCOL=http
 export HTTP_PORT=8080
@@ -60,12 +66,14 @@ echo "#### Docker host volume settings"
 
 #### Paths on Docker host for mapped volumes
 export PERSISTENCE_PREFIX=$(pwd)/cloudbees_ci_ha_volumes
+export SPLUNK_PERSISTENCE=$PERSISTENCE_PREFIX/splunk-data
 export BROWSER_PERSISTENCE=$PERSISTENCE_PREFIX/browser
 export HAPROXY_PERSISTENCE=$PERSISTENCE_PREFIX/haproxy
 export OC_PERSISTENCE=$PERSISTENCE_PREFIX/oc
 export CONTROLLER_PERSISTENCE=$PERSISTENCE_PREFIX/controllers
 export CONTROLLER1_CACHES=$PERSISTENCE_PREFIX/controller1_caches
 export CONTROLLER2_CACHES=$PERSISTENCE_PREFIX/controller2_caches
+export CONTROLLER3_CACHES=$PERSISTENCE_PREFIX/controller3_caches
 export AGENT_PERSISTENCE=$PERSISTENCE_PREFIX/ssh-agent1
 
 ########################################################################################################################
@@ -79,6 +87,7 @@ export CONTROLLER_JENKINS_OPTS="--webroot=/var/cache/cloudbees-core-cm/war --plu
 export CONTROLLER_JAVA_OPTS="--add-exports=java.base/jdk.internal.ref=ALL-UNNAMED --add-modules=java.se --add-opens=java.base/java.lang=ALL-UNNAMED --add-opens=java.base/sun.nio.ch=ALL-UNNAMED --add-opens=java.management/sun.management=ALL-UNNAMED --add-opens=jdk.management/com.sun.management.internal=ALL-UNNAMED -Djenkins.model.Jenkins.crumbIssuerProxyCompatibility=true -DexecutableWar.jetty.disableCustomSessionIdCookieName=true -Dcom.cloudbees.jenkins.ha=false -Dcom.cloudbees.jenkins.replication.warhead.ReplicationServletListener.enabled=true -Djenkins.plugins.git.AbstractGitSCMSource.cacheRootDir=/var/cache/cloudbees-core-cm/caches/git -Dorg.jenkinsci.plugins.github_branch_source.GitHubSCMSource.cacheRootDir=/var/cache/cloudbees-core-cm/caches/github-branch-source -XX:+AlwaysPreTouch -XX:+UseStringDeduplication -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC"
 # https://docs.cloudbees.com/docs/cloudbees-ci/latest/casc-oc/configure-oc-traditional#_adding_the_java_system_property
 # We assign the controller casc bundle directly, comment out if you don't want to use casc
+#export CONTROLLER_JAVA_OPTS="$CONTROLLER_JAVA_OPTS -Dcore.casc.config.bundle=/var/jenkins_home/bundle-link.yaml"
 export CONTROLLER_JAVA_OPTS="$CONTROLLER_JAVA_OPTS -Dcore.casc.config.bundle=/var/jenkins_home/cascbundle"
 #export CONTROLLER_JAVA_OPTS="$CONTROLLER_JAVA_OPTS -Djenkins.websocket.pingInterval=10"
 
@@ -88,7 +97,7 @@ echo "#### Operations center setting"
 export CJOC_JAVA_OPTS="-XX:+AlwaysPreTouch -XX:+UseStringDeduplication -XX:+ParallelRefProcEnabled -XX:+DisableExplicitGC -Dcom.cloudbees.jenkins.ha=false"
 # https://docs.cloudbees.com/docs/cloudbees-ci/latest/casc-oc/configure-oc-traditional#_adding_the_java_system_property
 # We assign the cjoc casc bundle, comment out if you don't want to use casc
-export CJOC_JAVA_OPTS="$CJOC_JAVA_OPTS -Dcore.casc.config.bundle=/var/jenkins_home/cascbundle"
+export CJOC_JAVA_OPTS="$CJOC_JAVA_OPTS -Dcore.casc.config.bundle=/var/jenkins_home/cascbundle/cjoc"
 export CJOC_JENKINS_OPTS=""
 # Cjoc login user and password
 export CJOC_LOGIN_USER="admin"
