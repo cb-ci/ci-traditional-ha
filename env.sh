@@ -20,6 +20,8 @@ echo "#### Docker image settings"
 #export DOCKER_IMAGE_CLOUDBEES_TAG=2.492.1.3-jdk21
 export DOCKER_IMAGE_CLOUDBEES_TAG=2.516.2.28983-jdk21
 #export DOCKER_IMAGE_CLOUDBEES_TAG=2.516.2.28991-jdk21
+
+
 # CB CI version for Operations Center and Controllers
 export DOCKER_IMAGE_OC=cloudbees/cloudbees-core-oc:${DOCKER_IMAGE_CLOUDBEES_TAG}
 export DOCKER_IMAGE_CLIENT_CONTROLLER=cloudbees/cloudbees-core-cm:${DOCKER_IMAGE_CLOUDBEES_TAG}
