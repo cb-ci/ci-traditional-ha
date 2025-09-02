@@ -38,9 +38,9 @@ stateOrProvinceName         = State or Province Name (full name)
 stateOrProvinceName_default = California
 localityName                = Locality Name (eg, city)
 localityName_default        = San Francisco
-organizationName            = Organization Name (eg, company)
-organizationName_default    = Example Company
-commonName                  = Common Name (eg, fully qualified host name)
+organizationName            = CloudBees
+organizationName_default    = CloudBees
+commonName                  = oc.ha
 commonName_default          = oc.ha
 
 [ req_ext ]
@@ -53,12 +53,10 @@ subjectAltName = @alt_names
 DNS.1   = oc.ha
 DNS.2   = client.ha
 DNS.3   = ha-client-controller-1
-DNS.4   = 172.47.0.7
-DNS.5   = ha-client-controller-2
-DNS.6   = 172.47.0.8
-DNS.7   = operations-center
-DNS.8   = 172.47.0.6
-DNS.9   = haproxy
+DNS.4   = ha-client-controller-2
+DNS.5  =  ha-client-controller-3
+DNS.6   = operations-center
+DNS.7   = haproxy
 EOF
 
 
