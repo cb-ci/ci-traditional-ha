@@ -3,6 +3,8 @@
 set -x
 
 source ./env.sh
+
+# comment/disable when not using ssl
 source ./env-ssl.sh
 
 export DOCKER_IMAGE_CLOUDBEES_TAG=2.516.2.28991-jdk21
