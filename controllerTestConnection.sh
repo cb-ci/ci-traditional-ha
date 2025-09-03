@@ -1,6 +1,6 @@
 #! /bin/bash
 
-# This script triggers the test pipeline on the controller and prints the response header
+# This script verifies the connection to controller replicas through haproxy and printgs out the active replica and controller (cookie)
 # See curl headers: https://daniel.haxx.se/blog/2022/03/24/easier-header-picking-with-curl
 
 source ../env.sh
@@ -8,7 +8,6 @@ source ../env-ssl.sh
 
 #set -x
 
-#CONTROLLER_URL=http://client.ha
 CONTROLLER_URL=https://${CLIENTS_URL}
 #curl connect_timeout
 CONNECT_TIMEOUT=5
