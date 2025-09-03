@@ -49,8 +49,12 @@ items:
                                 # sleep for X sec, kill the active replica now and check if SSH agent gets reconnected to the other replica
                                 sleep 10
                             done    
-                        '''
-                        controllerHostName()
+                        '''                        
+                    }
+                    post {
+                      always {
+                         controllerHostName()
+                      }
                     }
                 }
             }
