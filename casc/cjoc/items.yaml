@@ -7,7 +7,8 @@ items:
   description: 'ha'
   displayName: ha
   properties:
-  - configurationAsCode: {}
+  - configurationAsCode:
+      bundle: local/ha
   - sharedHeaderLabelOptIn:
       optIn: true
   - healthReporting:

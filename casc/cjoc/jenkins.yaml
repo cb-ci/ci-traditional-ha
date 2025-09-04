@@ -31,6 +31,10 @@ jenkins:
       url: "file:/var/jenkins_home/war/WEB-INF/plugins/update-center.json"
     - id: "cap-core-oc-traditional"
       url: "https://jenkins-updates.cloudbees.com/update-center/envelope-core-oc-traditional/update-center.json"
+cloudBeesCasCServer:
+  defaultBundle: "local/ha"
+  disableRemoteValidation: false
+  visibility: true
 security:
   securitySettingsEnforcement:
     global:
@@ -50,6 +54,16 @@ unclassified:
     rejectWarnings: false
     reloadAlwaysOnRestart: false
     skipNewVersions: false
+  bundleStorageService:
+    activated: true
+    bundles:
+      - name: "local"
+        retriever:
+          localFolderRetriever:
+            localFolder: "/var/jenkins_home/cascbundle/controller/"
+    checkOutTimeout: 600
+    pollingPeriod: 120
+    purgeOnDeactivation: false
   headerLabel:
     text: "Managed by CasC"
   location:
