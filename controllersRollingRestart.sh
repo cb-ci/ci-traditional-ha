@@ -17,11 +17,11 @@ for controller in "${CONTROLLERS[@]}"; do
   then
     rm -v $VERSION_TXT_PATH
   fi
-  docker compose -f docker-compose.yaml.template restart  "$controller"
+  docker compose -f docker-compose.yaml restart  "$controller"
 
   # Retry until HTTP 200 from inside the operations-center container
   until status=$(
-    docker compose -f docker-compose.yaml.template exec -T operations-center \
+    docker compose -f docker-compose.yaml exec -T operations-center \
       curl -k -s -o /dev/null -w "%{http_code}" \
       --connect-timeout 2 --max-time 5 \
       "https://$controller:8443/whoAmI/api/json?tree=authenticated"
@@ -30,5 +30,5 @@ for controller in "${CONTROLLERS[@]}"; do
     sleep 5
   done
   echo "$controller is healthy (HTTP 200)"
-  docker compose -f docker-compose.yaml.template ps "$controller"
+  docker compose -f docker-compose.yaml ps "$controller"
 done
