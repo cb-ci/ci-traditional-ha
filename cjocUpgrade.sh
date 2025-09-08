@@ -7,9 +7,8 @@ source ./env.sh
 # comment/disable when not using ssl
 source ./env-ssl.sh
 
-#export DOCKER_IMAGE_CLOUDBEES_TAG=2.516.2.28991-jdk21
-export DOCKER_IMAGE_CLOUDBEES_TAG=2.516.2.29000-jdk21
-export DOCKER_IMAGE_OC=cloudbees/cloudbees-core-oc:${DOCKER_IMAGE_CLOUDBEES_TAG}
+export DOCKER_IMAGE_CLOUDBEES_CJOC_TAG=2.516.2.29000-jdk21
+export DOCKER_IMAGE_OC=cloudbees/cloudbees-core-oc:${DOCKER_IMAGE_CLOUDBEES_CJOC_TAG}
 export logLine="cb-ci"
 export SERVICE_OC=operations-center
 

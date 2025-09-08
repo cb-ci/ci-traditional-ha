@@ -5,12 +5,9 @@ set -x
 source ./env.sh
 source ./env-ssl.sh
 
-export DOCKER_IMAGE_CLOUDBEES_TAG=2.516.2.28991-jdk21
-export DOCKER_IMAGE_CLIENT_CONTROLLER=cloudbees/cloudbees-core-cm:${DOCKER_IMAGE_CLOUDBEES_TAG}
 export logLine="cb-ci"
-export CONTROLLERS=(ha-client-controller-1 ha-client-controller-2 ha-client-controller-3)
 
-for controller in "${CONTROLLERS[@]}"; do
+for controller in $(docker compose config --services |grep "ha-client*"); do
   echo "Processing $controller"
 
   if [ -f "$VERSION_TXT_PATH" ]

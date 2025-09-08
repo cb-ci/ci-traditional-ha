@@ -7,13 +7,16 @@ source ./env.sh
 # comment/disable when not using ssl
 source ./env-ssl.sh
 
-export DOCKER_IMAGE_CLOUDBEES_TAG=2.516.2.28991-jdk21
-export DOCKER_IMAGE_CLIENT_CONTROLLER=cloudbees/cloudbees-core-cm:${DOCKER_IMAGE_CLOUDBEES_TAG}
+export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=2.516.2.28991-jdk21
+# Enable line below to upgrade Controller to the same version as CJOC
+#export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=${DOCKER_IMAGE_CLOUDBEES_CJOC_TAG}
+
+export DOCKER_IMAGE_CLIENT_CONTROLLER=cloudbees/cloudbees-core-cm:${DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG}
+
 export logLine="cb-ci"
-export CONTROLLERS=(ha-client-controller-1 ha-client-controller-2 ha-client-controller-3)
 export VERSION_TXT_PATH=$(pwd)/cloudbees_ci_ha_volumes/controllers/com.cloudbees.jenkins.replication.warhead.ReplicationServletListener.version.txt
 
-for controller in "${CONTROLLERS[@]}"; do
+for controller in $(docker compose config --services |grep "ha-client*");do
   echo "Processing $controller"
 
   # Pull and recreate only this service
