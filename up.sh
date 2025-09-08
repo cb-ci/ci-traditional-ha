@@ -1,6 +1,8 @@
 #!/bin/bash
 set +x
 
+
+
 echo "#### Verify if Docker Desktop is running"
 if docker info >/dev/null 2>&1
 then
@@ -71,6 +73,7 @@ createCaches () {
   mkdir -p ${1}/caches/github-branch-source
   mkdir -p ${1}/plugins
   mkdir -p ${1}/war
+  mkdir -p ${1}/tmp
 }
 
 #create cache dirs for controllers
@@ -101,8 +104,8 @@ fi
 
 
 echo "#### Create Operations Center related volumes JENKINS_HOME in ${OC_PERSISTENCE}"
-# create JENKINS_HOME dir for cjoc
-mkdir -p ${OC_PERSISTENCE}
+# create JENKINS_HOME dir for cjoc and tmp dir to extract the war file (Docker leads to "Not space left on device" otherwhise after a while
+mkdir -p ${OC_PERSISTENCE}/tmp
 # create dir for cjoc casc bundle
 mkdir -p ${OC_PERSISTENCE}/cascbundle/cjoc
 # copy cjoc casc bundle to JENKINS_HOME/cascbundle
@@ -132,7 +135,7 @@ chmod 700 ${OC_PERSISTENCE}
 chmod 700 ${AGENT_PERSISTENCE}
 
 echo "#### Render the docker compose template "
-envsubst < docker-compose.yaml.template > docker-compose.yaml
+envsubst < docker-compose.yaml > docker-compose.yaml.rendered
 
 echo "#### Start the containers"
 docker compose up -d --force-recreate
