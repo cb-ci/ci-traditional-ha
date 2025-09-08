@@ -31,6 +31,67 @@ services:
       demo-network:
         ipv4_address: ${SPLUNK_IP}
 
+  otel-collector:
+    image: otel/opentelemetry-collector:latest
+    #image: otel/opentelemetry-collector-contrib:latest
+    command: [ "--config=/etc/otelcol/config.yaml" ]
+    ports:
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+      # (optional) expose internal zpages for debugging
+      - "55679:55679"
+    container_name: otel-collector
+#    environment:
+#      # Optional: pass secrets for exporters via env
+#      SPLUNK_HEC_TOKEN: "${SPLUNK_HEC_TOKEN:-}"
+#      SPLUNK_OBSERVABILITY_ACCESS_TOKEN: "${SPLUNK_OBSERVABILITY_ACCESS_TOKEN:-}"
+#      SPLUNK_REALM: "${SPLUNK_REALM:-eu0}"
+#      SPLUNK_HEC_ENDPOINT: "${SPLUNK_HEC_ENDPOINT:-https://splunk.example.com:8088/services/collector}"
+    volumes:
+      - ./resources/otel/otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
+    healthcheck:
+      test: [ "CMD", "otelcol", "--version" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+    networks:
+      demo-network:
+        ipv4_address: ${OTEL_IP}
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest #v1
+    #image: jaegertracing/jaeger-query:2.0.0 #v2
+    container_name: jaeger
+    # Exposed ports:
+    # 16686 - Jaeger UI
+    # 4317  - OTLP gRPC ingest
+    # 4318  - OTLP HTTP ingest
+    # 14250 - Jaeger gRPC ingest (Thrift over gRPC)
+    # 14268 - Jaeger HTTP ingest (Thrift)
+    # 9411  - Zipkin ingest (optional)
+    ports:
+      - "16686:16686"
+#      - "4417:4317"
+#      - "4418:4318"
+#      - "14250:14250"
+#      - "14268:14268"
+#      - "9411:9411"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+      COLLECTOR_OTLP_GRPC_HOST_PORT: ":4317"
+      COLLECTOR_OTLP_HTTP_HOST_PORT: ":4318"
+      JAEGER_SAMPLER_TYPE: const         # always sample
+      JAEGER_SAMPLER_PARAM: "1"
+      # Or use a sampling strategies file:
+      # SAMPLING_STRATEGIES_FILE: /etc/jaeger/sampling.json
+    # volumes:
+    #   - ./sampling.json:/etc/jaeger/sampling.json:ro
+    #   - ./data:/badger
+    networks:
+      demo-network:
+        ipv4_address: ${JAEGER_IP}
+
   inotifywatcher-operations-center:
     image: devodev/inotify:latest
     #image: alpine:latest
@@ -114,6 +175,7 @@ services:
     extra_hosts:
       - "${OC_URL}:${HAPROXY_IP}"
     command: ["/bin/sh", "-c", "set -x && curl -v -k -L --user '${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}' -XGET -o /var/jenkins_home/bundle-link.yaml '${HTTP_PROTOCOL}://operations-center:${HTTP_PORT}/config-bundle-download-link?id=ha' && cat /var/jenkins_home/bundle-link.yaml"]
+    container_name: init-controllers
     healthcheck:
       test: test -f /var/jenkins_home/bundle-link.yaml
       interval: 5s
@@ -260,6 +322,7 @@ services:
     # {% endif %}
     ports:
       - "${HA_PROXY_BIND_PORT}:${HA_PROXY_BIND_PORT}"
+    container_name: haproxy
     networks:
       demo-network:
         ipv4_address: ${HAPROXY_IP}
@@ -303,4 +366,4 @@ networks:
     #  com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
     ipam:
       config:
-        - subnet: ${IP_PREFIX}.0.0/16
+        - subnet: ${IP_PREFIX}.0.0/24
