@@ -65,3 +65,31 @@ items:
   disabled: false
   displayName: test-agent
   resumeBlocked: false
+- kind: pipeline
+  name: testTraces
+  concurrentBuild: true
+  definition:
+   cpsFlowDefinition:
+    sandbox: true
+    script: |
+     pipeline {
+         agent {
+             label "ssh-agent"
+         }
+         stages {
+             stage('Stage1') {
+                 steps {
+                     echo 'Hello Stage1'
+                 }
+             }
+             stage('Stage2') {
+                 steps {
+                     echo 'Hello Stage2'
+                 }
+             }
+         }
+     }
+  description: ''
+  disabled: false
+  displayName: testTraces
+  resumeBlocked: false

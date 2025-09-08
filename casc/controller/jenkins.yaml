@@ -12,6 +12,7 @@ credentials:
               scope: GLOBAL
               username: "jenkins"
 jenkins:
+  authorizationStrategy: "cloudBeesRoleBasedAccessControl"
   clouds:
     - "operationsCenterAgentProvisioningService"
   nodes:
@@ -81,3 +82,14 @@ unclassified:
   location:
     adminAddress: "not configured <nobody@nowhere>"
     url: ${CONTROLLER_URL}
+  openTelemetry:
+    authentication: "noAuthentication"
+    disabledResourceProviders: "io.opentelemetry.instrumentation.resources.ProcessResourceProvider"
+    endpoint: "http://otel-collector:4317"
+    exportOtelConfigurationAsEnvironmentVariables: true
+    ignoredSteps: "dir,echo,isUnix,pwd,properties"
+    observabilityBackends:
+      - jaeger:
+          jaegerBaseUrl: "http://jaeger:16686/"
+    serviceName: "controller-ha"
+    serviceNamespace: "controller-ha"
