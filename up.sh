@@ -1,8 +1,6 @@
 #!/bin/bash
 set +x
 
-
-
 echo "#### Verify if Docker Desktop is running"
 if docker info >/dev/null 2>&1
 then
