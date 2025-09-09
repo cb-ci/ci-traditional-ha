@@ -94,7 +94,6 @@ services:
 
   inotifywatcher-operations-center:
     image: devodev/inotify:latest
-    #image: alpine:latest
     container_name: inotifywatcher-cjoc
     depends_on:
       operations-center:
@@ -331,6 +330,7 @@ services:
         condition: service_healthy
     extra_hosts:
       - "${OC_URL}:${OC_IP}"
+      - "${JAEGER_URL}:${JAEGER_IP}"
 
   browser:
     image: ${DOCKER_IMAGE_BROWSER_BOX}

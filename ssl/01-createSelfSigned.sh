@@ -57,6 +57,7 @@ DNS.4   = ha-client-controller-2
 DNS.5  =  ha-client-controller-3
 DNS.6   = operations-center
 DNS.7   = haproxy
+DNS.8   = jaeger.ha
 EOF
 
 
