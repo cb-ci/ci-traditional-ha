@@ -107,6 +107,7 @@ plugins:
 - id: prism-api
 - id: remoting-opentelemetry
 - id: scm-api
+- id: simple-theme-plugin
 - id: script-security
 - id: snakeyaml-api
 - id: ssh-credentials

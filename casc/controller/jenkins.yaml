@@ -90,6 +90,7 @@ unclassified:
     ignoredSteps: "dir,echo,isUnix,pwd,properties"
     observabilityBackends:
       - jaeger:
-          jaegerBaseUrl: "http://jaeger:16686/"
+          #jaegerBaseUrl: "http://jaeger:16686/"
+          jaegerBaseUrl: ${JAEGER_URL}
     serviceName: "controller-ha"
     serviceNamespace: "controller-ha"
