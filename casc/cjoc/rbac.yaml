@@ -8,8 +8,8 @@ roles:
   - com.cloudbees.jenkins.plugins.casc.permissions.CascPermission.Item
   - hudson.model.Hudson.UploadPlugins
   - jenkins.metrics.api.Metrics.View
-  - com.cloudbees.opscenter.server.model.ClientMaster.Lifecycle
   - com.cloudbees.opscenter.server.model.SharedCloud.Connect
+  - com.cloudbees.opscenter.server.model.ClientMaster.Lifecycle
   - com.cloudbees.opscenter.server.model.SharedSlave.Configure
   - com.cloudbees.plugins.updatecenter.UpdateCenter.Upload
   - com.cloudbees.opscenter.server.model.SharedCloud.Configure
@@ -70,7 +70,9 @@ roles:
   - nectar.plugins.rbac.groups.Group.View
   - com.cloudbees.plugins.updatecenter.UpdateCenter.Promote
   name: administer
-- name: anonymous
+#- permissions:
+#  - hudson.model.Hudson.Read
+#  name: anonymous
 - filterable: true
   permissions:
   - hudson.model.Item.Cancel

@@ -1,12 +1,13 @@
 apiVersion: "2"
 id: "cjoc"
 description: "Cjoc bundle descriptor"
-version: "2"
+version: "1"
 jcasc:
   - "jenkins.yaml"
 plugins:
   - "plugins.yaml"
-rbac:
-  - "rbac.yaml"
+#rbac:
+#  - "rbac.yaml"
 items:
   - "items.yaml"
+  - "items-cluster-op.yaml"

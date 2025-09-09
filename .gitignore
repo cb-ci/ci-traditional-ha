@@ -1,4 +1,4 @@
-docker-compose.yaml
+docker-compose.yaml.rendered
 /secrets/agent_id_rsa
 /secrets/agent_id_rsa.pub
 /secrets/acaternbergcb-wildcard-license.key

@@ -1,47 +1,41 @@
 jenkins:
-  authorizationStrategy: "cloudBeesRoleBasedAccessControl"
+  #authorizationStrategy: "cloudBeesRoleBasedAccessControl"
   crumbIssuer:
     standard:
-      excludeClientIPFromCrumb: false
+      excludeClientIPFromCrumb: true
   numExecutors: 1
-  securityRealm:
-    local:
-      allowsSignup: false
-      enableCaptcha: false
-      users:
-      - id: "admin"
-        password: ${CJOC_LOGIN_PW}
-        name: ${CJOC_LOGIN_USER}
-        properties:
-        - "consoleUrlProvider"
-        - "blueSteelRedirectOptOutProperty"
-        - "myView"
-        - preferredProvider:
-            providerId: "default"
-        - "timezone"
-        - "experimentalFlags"
-        - "apiToken"
-        - mailer:
-            emailAddress: "user@example.com"
-        - "apiToken"
+#  securityRealm:
+#    local:
+#      allowsSignup: false
+#      enableCaptcha: false
+#      users:
+#      - id: "admin"
+#        password: ${CJOC_LOGIN_PW}
+#        name: ${CJOC_LOGIN_USER}
+#        properties:
+#        - "consoleUrlProvider"
+#        - "blueSteelRedirectOptOutProperty"
+#        - "myView"
+#        - preferredProvider:
+#            providerId: "default"
+#        - "timezone"
+#        - "experimentalFlags"
+#        - "apiToken"
+#        - mailer:
+#            emailAddress: "user@example.com"
+#        - "apiToken"
   slaveAgentPort: -1
-  updateCenter:
-    sites:
-    - id: "core-oc-traditional-offline"
-      url: "file:/var/jenkins_home/war/WEB-INF/plugins/update-center.json"
-    - id: "cap-core-oc-traditional"
-      url: "https://jenkins-updates.cloudbees.com/update-center/envelope-core-oc-traditional/update-center.json"
 cloudBeesCasCServer:
-  defaultBundle: "local/ha"
-  disableRemoteValidation: false
-  visibility: true
-security:
-  securitySettingsEnforcement:
-    global:
-      realmAndAuthorization:
-        canCustomMapping: false
-        canOverride: false
-        defaultMappingFactory: "restrictedEquivalentRAMF"
+   defaultBundle: "local/ha"
+   disableRemoteValidation: false
+   visibility: true
+#security:
+#  securitySettingsEnforcement:
+#    global:
+#      realmAndAuthorization:
+#        canCustomMapping: false
+#        canOverride: false
+#        defaultMappingFactory: "restrictedEquivalentRAMF"
 #license:
 #  certificate: |
 #    ${readFile:${JENKINS_HOME}/cb-wildcard-license.cert}
@@ -54,16 +48,9 @@ unclassified:
     rejectWarnings: false
     reloadAlwaysOnRestart: false
     skipNewVersions: false
-  bundleStorageService:
-    activated: true
-    bundles:
-      - name: "local"
-        retriever:
-          localFolderRetriever:
-            localFolder: "/var/jenkins_home/cascbundle/controller/"
-    checkOutTimeout: 600
-    pollingPeriod: 120
-    purgeOnDeactivation: false
+  cascItemsConfiguration:
+    variableInterpolationEnabledForAdmin: false
+    variableInterpolationEnabledForNonAdmin: false
   headerLabel:
     text: "Managed by CasC"
   location:

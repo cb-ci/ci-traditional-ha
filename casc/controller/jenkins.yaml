@@ -12,7 +12,13 @@ credentials:
               scope: GLOBAL
               username: "jenkins"
 jenkins:
-  authorizationStrategy: "cloudBeesRoleBasedAccessControl"
+  #authorizationStrategy: "cloudBeesRoleBasedAccessControl"
+  #authorizationStrategy:
+  #  loggedInUsersCanDoAnything:
+  #    allowAnonymousRead: false
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: true
   clouds:
     - "operationsCenterAgentProvisioningService"
   nodes:

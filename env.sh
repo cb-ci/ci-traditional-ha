@@ -19,8 +19,12 @@ export JENKINS_AGENT_SSH_PUBKEY=$(cat $SSH_PUBLIC_KEY_PATH)
 echo "#### Docker image settings"
 
 # We use for CJOC one version ahead of the controller version so we can simulate the RollingUpgrade, see controllersRollingUpgrade.sh
-export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=2.516.2.28991-jdk21
 export DOCKER_IMAGE_CLOUDBEES_CJOC_TAG=2.516.2.29000-jdk21
+#export DOCKER_IMAGE_CLOUDBEES_CJOC_TAG=2.516.2.28983-jdk21
+export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=${DOCKER_IMAGE_CLOUDBEES_CJOC_TAG}
+# Hazelcast instance is not active!
+#export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=2.516.2.28991-jdk21
+
 
 
 # CB CI version for Operations Center and Controllers

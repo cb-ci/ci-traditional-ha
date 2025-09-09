@@ -8,3 +8,5 @@ plugins:
   - "plugins.yaml"
 items:
   - "items.yaml"
+#rbac:
+#  - "rbac.yaml"
