@@ -206,6 +206,7 @@ services:
       - JAVA_OPTS=${CONTROLLER_JAVA_OPTS}
       - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
       - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
+      - JAEGER_URL=${HTTP_PROTOCOL}://${JAEGER_URL}
     depends_on:
       - operations-center
       - init-controllers
@@ -242,6 +243,7 @@ services:
       - JAVA_OPTS=${CONTROLLER_JAVA_OPTS}
       - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
       - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
+      - JAEGER_URL=${HTTP_PROTOCOL}://${JAEGER_URL}
     depends_on:
       operations-center:
         condition: service_healthy
@@ -278,6 +280,7 @@ services:
       - JAVA_OPTS=${CONTROLLER_JAVA_OPTS}
       - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
       - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
+      - JAEGER_URL=${HTTP_PROTOCOL}://${JAEGER_URL}
     depends_on:
       operations-center:
         condition: service_healthy
