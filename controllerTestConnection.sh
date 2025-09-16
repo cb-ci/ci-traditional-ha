@@ -50,8 +50,7 @@
 #   * Here it encodes the backend (`client_controller_1`) so HAProxy can route subsequent requests to the same Jenkins controller.
 #
 #---
-#
-#### ✅ In plain words
+####  In plain words
 #
 #This cookie tells the client:
 #
