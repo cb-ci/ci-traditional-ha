@@ -41,6 +41,9 @@ This guide walks you through:
 * [Jenkins Initial HTTP/HTTPS Settings](https://www.jenkins.io/doc/book/installing/initial-settings/#configuring-http)
 * [SSL Certificates with HAProxy PDF](1_Using_SSL_Certificates_with_HAProxy.pdf)
 * [Overview of Java Keystore Types](https://www.pixelstech.net/article/1408345768-Different-types-of-keystore-in-Java----Overview)
+* https://www.jenkins.io/doc/book/system-administration/reverse-proxy-configuration-troubleshooting/
+* https://www.jenkins.io/doc/book/system-administration/reverse-proxy-configuration-with-jenkins/
+
 
 ---
 
