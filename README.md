@@ -28,7 +28,7 @@ graph TD
     
     HAProxy -->|Host: oc.ha| CJOC[Operations Center]
     
-    subgraph HA_Controllers ["HA (Active/Active) Controllers"]
+    subgraph HA_Controllers ["HA (Active/Active)-Controllers"]
         Controller1[Controller Replica 1]
         Controller2[Controller Replica 2]
     end
@@ -58,7 +58,7 @@ graph TD
     
     HAProxy -->|Host: oc.ha| CJOC[Operations Center]
     
-    subgraph HA_Controllers ["HA (Active/Active) Controllers"]
+    subgraph HA_Controllers ["HA (Active/Active)-Controllers"]
         Controller1[Controller Replica 1]
         Controller2[Controller Replica 2]
     end
