@@ -20,6 +20,8 @@ services:
       - CJOC_LOGIN_PW=${CJOC_LOGIN_PW}
       - CJOC_LOGIN_USER=${CJOC_LOGIN_USER}
       - OC_URL=${HTTP_PROTOCOL}://${OC_URL}
+      - CJOC_CASC_DEFAULT_BUNDLE=${CJOC_CASC_DEFAULT_BUNDLE}
+      - CASC_BUNDLE_PATH_CONTAINER=${CASC_BUNDLE_PATH_CONTAINER}
     container_name: operations-center
     volumes:
       - ${OC_PERSISTENCE}:/var/jenkins_home
@@ -52,8 +54,8 @@ services:
         ### -s: Silent (no progress), -S: Show error (connection errors), -k: Insecure, -w: Output status code, -L: Follow redirects
         HTTP_STATUS=$$(curl -sSL -k -w "%{http_code}" \
             --user "${CJOC_LOGIN_USER}:$${TOKEN}" \
-            -o "${CONTROLLER_PERSISTENCE}/bundle-link.yaml" \
-            "${HTTP_PROTOCOL}://${OC_URL}:${HTTP_PORT}/config-bundle-download-link?id=${CONTROLLER_BUNDLE_NAME}")
+            -o "${JENKINS_HOME_CONTAINER}/bundle-link.yaml" \
+            "${HTTP_PROTOCOL}://operations-center:${HTTP_PORT}/config-bundle-download-link?id=${CONTROLLER_BUNDLE_NAME}")
 
         echo "HTTP Status: $$HTTP_STATUS"
 
@@ -63,7 +65,7 @@ services:
                 echo "Success: Bundle link downloaded."
                 # Network workaround: Replacement of https://cjoc.local/zip-bundle/ with http://operations-center:8080/zip-bundle/ required, 
                 # because the external route https://cjoc.local can not be resolved to the IP of haproxy at the time of execution because haproxy is not up an running yet. (see docker-compose dependencies chain)
-                sed -i 's|http.*/zip-bundle/|http://${OC_URL}:${HTTP_PORT}/zip-bundle/|' ${JENKINS_HOME_CONTAINER}/bundle-link.yaml
+                sed -i 's|http.*/zip-bundle/|http://operations-center:8080/zip-bundle/|' ${JENKINS_HOME_CONTAINER}/bundle-link.yaml
                 cat ${JENKINS_HOME_CONTAINER}/bundle-link.yaml
                 ;;
             *)

@@ -1,7 +1,7 @@
 apiVersion: "2"
 id: "cjoc"
 description: "Cjoc bundle descriptor"
-version: "1"
+version: "2"
 jcasc:
   - "jenkins.yaml"
 plugins:

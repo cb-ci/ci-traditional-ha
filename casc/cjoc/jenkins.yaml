@@ -2,8 +2,8 @@ jenkins:
   authorizationStrategy: "cloudBeesRoleBasedAccessControl"
   crumbIssuer:
     standard:
-      excludeClientIPFromCrumb: false
-  disableRememberMe: false
+      excludeClientIPFromCrumb: true
+  numExecutors: 1
   securityRealm:
     local:
       allowsSignup: false
@@ -13,6 +13,7 @@ jenkins:
         password: ${CJOC_LOGIN_PW}
         name: ${CJOC_LOGIN_USER}
         properties:
+        - "consoleUrlProvider"
         - preferredProvider:
             providerId: "default"
         - "timezone"
@@ -22,37 +23,33 @@ jenkins:
             emailAddress: "user@example.com"
         - "apiToken"
   slaveAgentPort: -1
-  updateCenter:
-    sites:
-    - id: "core-oc-traditional-offline"
-      url: "file:/var/jenkins_home/war/WEB-INF/plugins/update-center.json"
-    - id: "cap-core-oc-traditional"
-      url: "https://jenkins-updates.cloudbees.com/update-center/envelope-core-oc-traditional/update-center.json"
-beekeeper:
-  enabled: true
-  securityWarnings:
-    enabledForCore: true
-    enabledForPlugins: true
-  upgrades:
-    autoDowngradePlugins: false
-    autoUpgradePlugins: true
 cloudBeesCasCServer:
-   defaultBundle: "local/ha"
-   disableRemoteValidation: false
-   visibility: true
+  defaultBundle: local/${CONTROLLER_BUNDLE_NAME}
+  disableRemoteValidation: false
+  visibility: true
 security:
- securitySettingsEnforcement:
-   global:
-     realmAndAuthorization:
-       canCustomMapping: false
-       canOverride: false
-       defaultMappingFactory: "restrictedEquivalentRAMF"
+  securitySettingsEnforcement:
+    global:
+      realmOnly:
+        canCustomMapping: false
+        canOverride: true
+        defaultMappingFactory: "restrictedEquivalentRAMF"
 license:
- certificate: |
-   ${readFile:${JENKINS_HOME}/license.cert}
- key: |
-   ${readFile:${JENKINS_HOME}/license.key}
+  certificate: |
+    ${readFile:${JENKINS_HOME}/license.crt}
+  key: |
+    ${readFile:${JENKINS_HOME}/license.key}
 unclassified:
+  bundleStorageService:
+    activated: true
+    bundles:
+    - name: "local"
+      retriever:
+        localFolderRetriever:
+          localFolder: ${CASC_BUNDLE_PATH_CONTAINER}
+    checkOutTimeout: 600
+    pollingPeriod: 120
+    purgeOnDeactivation: false
   bundleUpdateTiming:
     automaticReload: true
     automaticRestart: true
@@ -60,8 +57,8 @@ unclassified:
     reloadAlwaysOnRestart: false
     skipNewVersions: false
   cascItemsConfiguration:
-    variableInterpolationEnabledForAdmin: false
-    variableInterpolationEnabledForNonAdmin: false
+    variableInterpolationEnabledForAdmin: true
+    variableInterpolationEnabledForNonAdmin: true
   headerLabel:
     text: "Managed by CasC"
   location:
