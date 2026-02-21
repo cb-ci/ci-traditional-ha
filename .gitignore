@@ -5,5 +5,9 @@ cb-wildcard-license.cert
 cb-wildcard-license.key
 license.crt
 license.key
+ssl/jenkins.*
+ssl/cacerts
 secrets/agent_id_rsa
 secrets/agent_id_rsa.pub
+ssl/*.pem
+ssl/*.cnf

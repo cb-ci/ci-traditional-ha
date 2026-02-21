@@ -64,8 +64,8 @@ create_volume_dirs() {
   if [[ "$SSL" == "true" ]]; then
     echo "#### Preparing SSL volumes"
     mkdir -p cloudbees_ci_ha_volumes/haproxy/etc/ssl/certs
-    if [[ -f "ssl/jenkins.pem" ]]; then
-        cp -v ssl/jenkins.pem cloudbees_ci_ha_volumes/haproxy/etc/ssl/certs/haproxy.pem
+    if [[ -f "ssl/haproxy.pem" ]]; then
+        cp -v ssl/haproxy.pem cloudbees_ci_ha_volumes/haproxy/etc/ssl/certs/haproxy.pem
     fi
   fi
   
@@ -118,10 +118,10 @@ cp -f ./license.key "${OC_PERSISTENCE}/license.key"
 chmod 600 "${OC_PERSISTENCE}/license.crt" "${OC_PERSISTENCE}/license.key"
 echo "Copied license files to ${OC_PERSISTENCE}"
 
-mkdir -p "${CJOC_PERSISTENCE}/init.groovy.d"
-cp -f ./jenkins_init.groovy.d/init_user.groovy "${CJOC_PERSISTENCE}/init.groovy.d/init_user.groovy"
-chmod 644 "${CJOC_PERSISTENCE}/init.groovy.d/init_user.groovy"
-echo "Copied init_user.groovy to ${CJOC_PERSISTENCE}/init.groovy.d"
+mkdir -p "${OC_PERSISTENCE}/init.groovy.d"
+cp -f ./jenkins_init.groovy.d/init_user.groovy "${OC_PERSISTENCE}/init.groovy.d/init_user.groovy"
+chmod 644 "${OC_PERSISTENCE}/init.groovy.d/init_user.groovy"
+echo "Copied init_user.groovy to ${OC_PERSISTENCE}/init.groovy.d"
 # sudo chown -R 1000:1000 ${CJOC_PERSISTENCE} ${CONTROLLER_PERSISTENCE} 
 
 echo "#### starting containers"
