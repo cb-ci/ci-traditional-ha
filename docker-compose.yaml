@@ -26,6 +26,8 @@ services:
     container_name: operations-center
     volumes:
       - ${OC_PERSISTENCE}:/var/jenkins_home
+      - ./casc/cjoc:${CASC_BUNDLE_PATH_CONTAINER}/cjoc
+      - ./casc/controller:${CASC_BUNDLE_PATH_CONTAINER}/controller
     networks:
       demo-network:
         ipv4_address: ${OC_IP}

@@ -53,8 +53,8 @@ create_volume_dirs() {
   done
 
   # Provision CasC bundles
-  cp -Rf casc/cjoc/*.yaml "$OC_PERSISTENCE/cascbundle/"
-  #cp -Rf casc/controller/*.yaml "$CONTROLLER_PERSISTENCE/cascbundle/"
+  cp -Rf casc/cjoc "$OC_PERSISTENCE/cascbundle/"
+  cp -Rf casc/controller "$OC_PERSISTENCE/cascbundle"
   
   # Inject SSH key for CasC
   cp -vf "$SSH_PRIVATE_KEY_PATH" "$CONTROLLER_PERSISTENCE/id_rsa"
