@@ -4,34 +4,9 @@ Docker compose setup for a [Cloudbees CI traditional installation](https://docs.
 
 See these links for the background
 
-<<<<<<< Updated upstream
-
 * <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-fundamentals>
 * <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-considerations>
 * <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional>
-
-# Links
-
-References we have used for the development of this demo environment:
-
-* <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional>
-* <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-considerations>
-* <https://docs.docker.com/compose/networking/>
-* <https://www.haproxy.com/blog/haproxy-configuration-basics-load-balance-your-servers>
-* <https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/>
-* <https://www.haproxy.com/documentation/haproxy-configuration-tutorials/load-balancing/websocket/#configure-websockets>
-* <https://www.haproxy.com/documentation/haproxy-configuration-tutorials/core-concepts/backends/>
-* <https://www.claudiokuenzler.com/blog/900/how-to-use-docker-host-ip-address-inside-application-container>
-* <https://eventuate.io/docs/usingdocker.html>
-* <https://docs.linuxserver.io/images/docker-webtop/#lossless-mode>
-=======
-* <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-fundamentals>
-* <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-considerations>
-* <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/get-ready-for-ha>
-* <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional>
-* <https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/how-to-setup-https-within-jetty>
-
->>>>>>> Stashed changes
 
 # Architecture
 
@@ -42,10 +17,6 @@ The demo has the following limitations:
 
 * SSL 443 is not enabled yet. All traffic for local demo is going through port 80/8080
 * NFS server is not part of the demo. We will use a local directory on the host system
-
-<<<<<<< Updated upstream
-![Ci-HAProxy.png](docs/Ci-HAProxy.png)
-=======
 
 Two models are supported:
 
@@ -139,11 +110,9 @@ sequenceDiagram
     HAProxy-->>User: HTTP 200 OK + New Cookie
 ```
 
->>>>>>> Stashed changes
-
 The setup consists of the following containers:
 
-* Operations center
+* Operations Center
 * Controller 1
 * Controller 2
 * SSH-Agent 1
@@ -153,24 +122,17 @@ The setup consists of the following containers:
 The setup is self-sufficient and does not require any modifications on the Docker host or anywhere else outside of the docker compose environment.
 There are two exceptions to highlight:
 
-<<<<<<< Updated upstream
-
-* Persistence - local paths on the docker host are used as persistence volumes. NFS volumes are not used at the moment in the demo lab. Controller 1 and Controller 2 share the same $JENKINS_HOME dir.
-* If you want to access the demo via a browser from Docker host, you need entries in `/etc/hosts` (see chapters below)
-=======
 * Persistence
   * Local paths on the docker host are used as persistence volumes.  
   * Controller 1 and Controller 2 share the same $JENKINS_HOME dir.
   * NFS volumes are not used at the moment in the demo lab.
 * Browser access
   * If you want to access the demo via a browser from a Docker host, you need entries in `/etc/hosts` (see chapters below)
-  * If you don't want to add entries in `/etc/hosts`, you can access a browser in a container under [htpp://localhost:3000](htpp://localhost:3000). No changes on your Docker host system are required in this case
-
->>>>>>> Stashed changes
+  * If you don't want to add entries in `/etc/hosts`, you can access a browser in a container under [http://localhost:3000](http://localhost:3000). No changes on your Docker host system are required in this case
 
 The Operations Center and both controllers are behind HAProxy.
 
-* If a request comes to HAProxy with $OC_URL host header, it is forwarded to the operations center container
+* If a request comes to HAProxy with $OC_URL host header, it is forwarded to the Operations Center container
 * If a request comes with $CLIENTS_URL host header, it is load balanced between all client controllers
 * The load balancing for client controllers has sticky sessions enabled
 
@@ -182,7 +144,7 @@ The Operations Center and both controllers are behind HAProxy.
   * Engine: 24.0.6
   * Compose: v2.22.0-desktop.2
   * Docker-compose v3
-  * Web browser, Firefox and Chrome has been tested
+  * Web browsers, Firefox and Chrome, have been tested
 
 # Quick Start
 
@@ -201,10 +163,10 @@ The Operations Center and both controllers are behind HAProxy.
     * This option require changes on your host in `/etc/hosts`
 * Open the Operations Center
   * use `admin/admin` for login
-* Request a trial licence (first option)
-* Click on the pre provisioned controller "ha" in the Operations center UI
-* Add `http://client.ha`and click `push configuration` and `join operations center`
-* Now you are on an Controller running in HA/HS mode. A test Pipeline job using an SSH agent is already running
+* Request a trial license (first option)
+* Click on the pre-provisioned controller "ha" in the Operations Center UI
+* Add `http://client.ha` and click `push configuration` and `join operations center`
+* Now you are on a Controller running in HA/HS mode. A test Pipeline job using an SSH agent is already running
 
 # Files
 
@@ -247,7 +209,7 @@ Script to create a self signed certificate
 
 [haproxy.cfg](haproxy.cfg)
 
-This is the haproxy configuration used in the haproxy container to balance and forward the incoming traffic to the related cloudbees components
+This is the haproxy configuration used in the haproxy container to balance and forward the incoming traffic to the related CloudBees components
 It includes:
 
 * frontend and backend config
@@ -271,7 +233,7 @@ Contains the haproxy config for SSL
 
 [deleteVolumes.sh](deleteVolumes.sh)
 
-* delete the persistance dir including all mounted volumes
+* delete the persistence dir including all mounted volumes
 
 [casc/cjoc](casc/cjoc)
 
@@ -314,8 +276,8 @@ Run `down.sh`. This will issue docker compose down to stop the running container
 
 ## Browser Access
 
-Just Firefox and Chrome has been tested to access the environment.
-There are two options on how to access the CloudBess CI demo lab:
+Just Firefox and Chrome have been tested to access the environment.
+There are two options on how to access the CloudBees CI demo lab:
 
 ### Option1_Join_the_containerized_browser_in_a_Box
 
@@ -350,7 +312,7 @@ docker-compose exec operations-center   cat /var/jenkins_home/secrets/initialAdm
 
 ![oc-unlock.png](docs/oc-unlock.png)
 
-* Request a licence and add admin user details
+* Request a license and add admin user details
 * (Not required when using CasC)  Install the suggested Plugins
 * (Not required when using CasC)  Under Operations Center -> Manage Jenkins -> Security
   * Disable TCP Port 50000 (we don't need it, all traffic in this demo is HTTP or SSH)
@@ -372,7 +334,7 @@ docker-compose exec operations-center   cat /var/jenkins_home/secrets/initialAdm
 
 * Required: Push the configuration to http://$CLIENTS_URL  (by default this is <http://client.ha/> )
   * Not required: Try to access http://$CLIENTS_URL/ in Firefox
-  * Not required: Request a licence and add admin user details
+  * Not required: Request a license and add admin user details
 * (Not required when using CasC) Get the Controller1 initial password
 
 > docker-compose exec ha-client-controller-1    cat /var/jenkins_home/secrets/initialAdminPassword
@@ -394,8 +356,8 @@ or
   docker-compose restart ha-client-controller-2
   ```
 
-* Controller 2 will begin starting when controller 1 is ready
-* It takes some minutes now, you can see the HA status in the controllers` Manage Jenkins section
+* Controller 2 will begin starting when Controller 1 is ready
+* It takes some minutes now, you can see the HA status in the controllers' Manage Jenkins section
 
 ![Screenshot20240919at084705.png](docs/image1.png)
 
@@ -441,18 +403,18 @@ Once the Pipeline is started you can  demo one replica to demo the build will ta
 * Start the Pipeline
 * Check what replica you are running on
 * Enable HA developer mode to show the info icon to the bottom of the Controller
-* This show you also the IP address of your session replica
-* shut your controller replica down (see in `docker-compose.yaml` for the ip address mapped to the docker container name)
+* This also shows you the IP address of your session replica
+* shut your controller replica down (see in `docker-compose.yaml` for the IP address mapped to the docker container name)
 
 ```
-docker-compose stop ha-client-controller-1 # or ha-client-controller-2 depending on where yu are 
+docker-compose stop ha-client-controller-1 # or ha-client-controller-2 depending on where you are 
 ```
 
-* Reload the Controller page in your browser, you should be now on the other replica and job should resume to work
+* Reload the Controller page in your browser, you should now be on the other replica and the job should resume working
 
 # Troubleshooting
 
-## Browser shows Side is nt secured/Missing SSL Certificate
+## Browser shows Site is not secured/Missing SSL Certificate
 
 We run on localhost, an SSL certificate is not part of the demo now.
 If you hit SSL issues in your browser when you access the Operations center, do the following:
@@ -566,7 +528,7 @@ docker-compose top
 
 > ssh-keygen -t rsa -b 2048 -C "<your_email@example.com>"
 
-### Add your public key the agent container
+### Add your public key to the agent container
 
 add the ssh-pub key in your `docker-compose.yaml` file
 
