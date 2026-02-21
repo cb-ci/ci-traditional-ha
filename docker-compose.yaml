@@ -40,11 +40,11 @@ services:
       - |
         set -e
         set -x
-        export SECRET_PATH_CJOC_TOKEN="${JENKINS_HOME_CONTAINER}/${SECRET_FILE_CJOC_TOKEN}"
-        if [ ! -f $${SECRET_PATH_CJOC_TOKEN} ]; then
-            echo "Error: Token file $${SECRET_PATH_CJOC_TOKEN} not found."
-            exit 1
-        fi
+        export SECRET_PATH_CJOC_TOKEN="/tmp/${SECRET_FILE_CJOC_TOKEN}"
+        echo "Waiting for Token file $${SECRET_PATH_CJOC_TOKEN} to be generated..."
+        while [ ! -f "$${SECRET_PATH_CJOC_TOKEN}" ]; do
+            sleep 2
+        done
         TOKEN="$$(cat $${SECRET_PATH_CJOC_TOKEN})"
         echo "Fetching bundle link..."
 
@@ -89,7 +89,10 @@ services:
         condition: service_healthy
     volumes:
       - ${CONTROLLER_PERSISTENCE}:${JENKINS_HOME_CONTAINER}
-      - ${OC_PERSISTENCE}/${SECRET_FILE_CJOC_TOKEN}:${JENKINS_HOME_CONTAINER}/${SECRET_FILE_CJOC_TOKEN}
+      # We mount the entire OC_PERSISTENCE directory to /var/oc_home instead of just the single cjoc_token.txt file. 
+      # Mounting a single non-existent file into a directory that is already a volume mount
+      # triggers an OCI runtime mount overlay error on Docker for Mac (virtiofs).
+      - ${OC_PERSISTENCE}/${SECRET_FILE_CJOC_TOKEN}:/tmp/${SECRET_FILE_CJOC_TOKEN}
     networks:
       demo-network:
         ipv4_address: ${INIT_CONTROLLER_IP}
