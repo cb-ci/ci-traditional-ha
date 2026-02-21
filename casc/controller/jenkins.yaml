@@ -89,5 +89,5 @@ unclassified:
     hookUrl: "http://controller.ha/github-webhook/"
   location:
     adminAddress: "not configured <nobody@nowhere>"
-    url: ${HTTP_PROTOCOL}://${CONTROLLER_URL}
+    url: ${CONTROLLER_URL}
 

@@ -68,7 +68,7 @@ services:
 
     networks:
       demo-network:
-        ipv4_address: ${CLIENT1_IP}
+        ipv4_address: ${CONTROLLER1_IP}
 
   ha-client-controller-2:
     image: ${DOCKER_IMAGE_CLIENT}
@@ -108,7 +108,7 @@ services:
 
     networks:
       demo-network:
-        ipv4_address: ${CLIENT2_IP}
+        ipv4_address: ${CONTROLLER2_IP}
 
 
   agent:

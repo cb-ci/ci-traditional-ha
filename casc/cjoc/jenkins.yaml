@@ -49,9 +49,9 @@ security:
        defaultMappingFactory: "restrictedEquivalentRAMF"
 license:
  certificate: |
-   ${readFile:${JENKINS_HOME}/cb-wildcard-license.cert}
+   ${readFile:${JENKINS_HOME}/license.cert}
  key: |
-   ${readFile:${JENKINS_HOME}/cb-wildcard-license.key}
+   ${readFile:${JENKINS_HOME}/license.key}
 unclassified:
   bundleUpdateTiming:
     automaticReload: true
@@ -66,6 +66,6 @@ unclassified:
     text: "Managed by CasC"
   location:
     adminAddress: "Set me up <nobody@nowhere>"
-    url: ${HTTP_PROTOCOL}://${OC_URL}
+    url: ${OC_URL}
   operationsCenterSharedConfiguration:
     enabled: true

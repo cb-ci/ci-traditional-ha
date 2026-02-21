@@ -5,3 +5,5 @@ cb-wildcard-license.cert
 cb-wildcard-license.key
 license.crt
 license.key
+secrets/agent_id_rsa
+secrets/agent_id_rsa.pub

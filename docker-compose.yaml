@@ -27,14 +27,57 @@ services:
       demo-network:
         ipv4_address: ${OC_IP}
   # Sidecar bunlde-link.yaml init doesent work yet, oc  hostname can not be resolved?
-  init-controllers:
+  init-controller:
     image: curlimages/curl
+    user: "1000:1000"
     extra_hosts:
       - "${OC_URL}:${HAPROXY_IP}"
-    command: [ "/bin/sh", "-c", "set -x && curl -v -k -L --user '${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}' -XGET -o /var/jenkins_home/bundle-link.yaml '${HTTP_PROTOCOL}://operations-center:${HTTP_PORT}/config-bundle-download-link?id=ha' && cat /var/jenkins_home/bundle-link.yaml" ]
-    container_name: init-controllers
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        set -x
+        export SECRET_PATH_CJOC_TOKEN="${JENKINS_HOME_CONTAINER}/${SECRET_FILE_CJOC_TOKEN}"
+        if [ ! -f $${SECRET_PATH_CJOC_TOKEN} ]; then
+            echo "Error: Token file $${SECRET_PATH_CJOC_TOKEN} not found."
+            exit 1
+        fi
+        TOKEN="$$(cat $${SECRET_PATH_CJOC_TOKEN})"
+        echo "Fetching bundle link..."
+
+        # Download bundle link from operationscenter
+        ## Capture HTTP status code, allow 4xx/5xx to pass curl so we can check code
+        ### Network workaround: we need to download from operationscenter:8080 directly because HAProxy is not up and running yet in this compose stage.
+        ### -s: Silent (no progress), -S: Show error (connection errors), -k: Insecure, -w: Output status code, -L: Follow redirects
+        HTTP_STATUS=$$(curl -sSL -k -w "%{http_code}" \
+            --user "${CJOC_LOGIN_USER}:$${TOKEN}" \
+            -o "${CONTROLLER_PERSISTENCE}/bundle-link.yaml" \
+            "${HTTP_PROTOCOL}://${OC_URL}:${HTTP_PORT}/config-bundle-download-link?id=${CONTROLLER_BUNDLE_NAME}")
+
+        echo "HTTP Status: $$HTTP_STATUS"
+
+        # Check for allowed status codes: 200, 201, 302
+        case "$$HTTP_STATUS" in
+            200|201|302)
+                echo "Success: Bundle link downloaded."
+                # Network workaround: Replacement of https://cjoc.local/zip-bundle/ with http://operations-center:8080/zip-bundle/ required, 
+                # because the external route https://cjoc.local can not be resolved to the IP of haproxy at the time of execution because haproxy is not up an running yet. (see docker-compose dependencies chain)
+                sed -i 's|http.*/zip-bundle/|http://${OC_URL}:${HTTP_PORT}/zip-bundle/|' ${JENKINS_HOME_CONTAINER}/bundle-link.yaml
+                cat ${JENKINS_HOME_CONTAINER}/bundle-link.yaml
+                ;;
+            *)
+                echo "Error: Failed to fetch bundle link. HTTP Status: $$HTTP_STATUS"
+                if [ -s "${JENKINS_HOME_CONTAINER}/bundle-link.yaml" ]; then
+                    echo "Response content:"
+                    cat "${JENKINS_HOME_CONTAINER}/bundle-link.yaml"
+                fi
+                exit 1
+                ;;
+        esac
+    container_name: init-controller
     healthcheck:
-      test: test -f /var/jenkins_home/bundle-link.yaml
+      test: test -f ${JENKINS_HOME_CONTAINER}/bundle-link.yaml
       interval: 5s
       timeout: 3s
       retries: 5
@@ -43,7 +86,8 @@ services:
       operations-center:
         condition: service_healthy
     volumes:
-      - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
+      - ${CONTROLLER_PERSISTENCE}:${JENKINS_HOME_CONTAINER}
+      - ${OC_PERSISTENCE}/${SECRET_FILE_CJOC_TOKEN}:${JENKINS_HOME_CONTAINER}/${SECRET_FILE_CJOC_TOKEN}
     networks:
       demo-network:
         ipv4_address: ${INIT_CONTROLLER_IP}
@@ -68,8 +112,9 @@ services:
       - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
       - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
     depends_on:
-      - operations-center
-      - init-controllers
+      init-controller:
+        condition: service_completed_successfully
+        required: true
     # entrypoint: ["sh", "-c", "while [ ! -f /var/jenkins_home/bundle-link.yaml ]; do echo 'wait for bundle-link.yaml' && sleep 1; done;"]
 
     container_name: ha-client-controller-1
@@ -101,8 +146,6 @@ services:
       - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
       - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
     depends_on:
-      operations-center:
-        condition: service_healthy
       ha-client-controller-1:
         condition: service_healthy
     container_name: ha-client-controller-2

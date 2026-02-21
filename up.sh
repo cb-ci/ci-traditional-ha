@@ -13,6 +13,10 @@ validate_prerequisites() {
     echo "ERROR: 'envsubst' command not found. Please install 'gettext'."
     exit 1
   fi
+  if [[ ! -f "./license.crt" || ! -f "./license.key" ]]; then
+    echo "CloudBees CI license files './license.crt' './license.key' not found. Create them or copy them to the current directory"
+    exit 1
+  fi
 }
 
 setup_ssh_keys() {
@@ -50,7 +54,7 @@ create_volume_dirs() {
 
   # Provision CasC bundles
   cp -Rf casc/cjoc/*.yaml "$OC_PERSISTENCE/cascbundle/"
-  cp -Rf casc/controller/*.yaml "$CONTROLLER_PERSISTENCE/cascbundle/"
+  #cp -Rf casc/controller/*.yaml "$CONTROLLER_PERSISTENCE/cascbundle/"
   
   # Inject SSH key for CasC
   cp -vf "$SSH_PRIVATE_KEY_PATH" "$CONTROLLER_PERSISTENCE/id_rsa"
@@ -104,6 +108,21 @@ setup_ssh_keys
 
 # Create volume directories
 create_volume_dirs
+
+
+
+# workaround to avoid https://github.com/testcontainers/testcontainers-java/issues/11222
+mkdir -p "${OC_PERSISTENCE}"
+cp -f ./license.crt "${OC_PERSISTENCE}/license.crt"
+cp -f ./license.key "${OC_PERSISTENCE}/license.key"
+chmod 600 "${OC_PERSISTENCE}/license.crt" "${OC_PERSISTENCE}/license.key"
+echo "Copied license files to ${OC_PERSISTENCE}"
+
+mkdir -p "${CJOC_PERSISTENCE}/init.groovy.d"
+cp -f ./jenkins_init.groovy.d/init_user.groovy "${CJOC_PERSISTENCE}/init.groovy.d/init_user.groovy"
+chmod 644 "${CJOC_PERSISTENCE}/init.groovy.d/init_user.groovy"
+echo "Copied init_user.groovy to ${CJOC_PERSISTENCE}/init.groovy.d"
+# sudo chown -R 1000:1000 ${CJOC_PERSISTENCE} ${CONTROLLER_PERSISTENCE} 
 
 echo "#### starting containers"
 docker compose $COMPOSE_FILES up -d --force-recreate

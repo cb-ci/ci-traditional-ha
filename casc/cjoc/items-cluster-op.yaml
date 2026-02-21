@@ -1,0 +1,204 @@
+removeStrategy:
+  rbac: SYNC
+  items: NONE
+items:
+  - kind: clusterOpProject
+    name: BannerManagementUserContent
+    blockBuildWhenDownstreamBuilding: false
+    blockBuildWhenUpstreamBuilding: false
+    concurrentBuild: true
+    description: ''
+    disabled: false
+    displayName: BannerManagementUserContent
+    operations:
+      - masterClusterOperation:
+          failureMode: IMMEDIATELY
+          clusterOpSteps:
+            - installPluginClusterOpStep:
+                name: simple-theme-plugin
+                force: false
+                version: ''
+            - masterGroovyClusterOpStep:
+                script: |-
+                  // This script is used to create a banner in Jenkins with dismissible functionality.
+                  // It uses JavaScript and CSS to display a message at the top of the Jenkins UI.
+                  // The banner can be dismissed for a specified duration using local storage.
+                  // The script is designed to be run in a Jenkins environment and requires the Simple Theme Plugin.
+                  // It expects the following environment variables:
+                  // CONTENT: The message to be displayed in the banner.
+                  // DISMISS_DURATION: The duration (in minutes) for which the banner should be dismissed.
+                  def textCSS = ''
+                  def textJS = ''
+                  def content = ''
+                  def contentId = ''
+                  int dismissDuration = Integer.parseInt(!DISMISS_DURATION ? '15' : "${DISMISS_DURATION}")
+                  int dismissDurationMs = dismissDuration * 60 * 1000
+                  def dismissToolTip = "Hide this message for ${dismissDuration} minutes"
+                  
+                  String generateUID(String input) {
+                      def md = java.security.MessageDigest.getInstance("SHA-256")
+                      def digest = md.digest(input.trim().getBytes("UTF-8"))
+                      return digest.encodeHex().toString()[0..15]
+                  }
+                  
+                  def setUp(String userContentPath, String contentStr) {
+                      def file = new File(Jenkins.instance.rootPath.toString() + userContentPath)
+                      if (!contentStr) {
+                          file.delete()
+                          return null
+                      }
+                      if (!file.parentFile.exists()) {
+                          file.parentFile.mkdirs()
+                      }
+                      if (!file.exists()) {
+                          file.createNewFile()
+                      }
+                      file.text = contentStr
+                      def url = Jenkins.instance.getRootUrl()
+                      // ensure no double slashes in the URL
+                      if (url.endsWith("/") && userContentPath.startsWith("/")) {
+                          url = url.substring(0, url.length() - 1)
+                      } else if (!url.endsWith("/") && !userContentPath.startsWith("/")) {
+                          url = url + "/"
+                      }
+                      return url + userContentPath
+                  }
+                  
+                  if (CONTENT) {
+                      content = CONTENT.trim().replaceAll('\n', '<br>')
+                      // Generate a unique identifier for the content
+                      contentId = generateUID(content)
+                      // CSS
+                      textCSS = """\
+                      #banner {
+                          background-color: #f1f51b;
+                          color: darkred;
+                          border: 2px solid #ffcc00;
+                          padding: 10px 10px 10px 10px;
+                          margin: 5px;
+                          text-align: center;
+                          font-weight: bold;
+                          font-size: 16px;
+                          position: relative;
+                      }
+                  
+                      #banner .close-btn {
+                          position: absolute;
+                          top: 4px;
+                          right: 10px;
+                          color: darkred;
+                          font-weight: bold;
+                          font-size: 18px;
+                          cursor: pointer;
+                      }
+                      """.stripIndent()
+                  
+                      // JS
+                      textJS = """\
+                      (function () {
+                          const message = `${content}`;
+                          const bannerId = "${contentId}";
+                          const dismissDuration = ${dismissDurationMs};
+                          const localKey = "banner-dismissed";
+                  
+                          const data = JSON.parse(localStorage.getItem(localKey) || "{}");
+                          console.log("Banner data:", data);
+                          const dismissedId = data.id;
+                          const dismissedUntil = data.until || 0;
+                          const now = Date.now();
+                          console.log("Current time:", now);
+                          console.log("Dismissed until:", dismissedUntil);
+                          console.log("Result:", now > dismissedUntil);
+                          console.log("Dismissed ID:", dismissedId);
+                          console.log("Banner ID:", bannerId);
+                          console.log("Dismissed ID matches Banner ID:", dismissedId === bannerId);
+                  
+                          if (dismissedId === bannerId && now <= dismissedUntil) {
+                              return; // Don't show banner
+                          }
+                          const maxRetries = 15;
+                          let attempts = 0;
+                  
+                          function insertBannerWhenReady() {
+                              const header = document.getElementById('header-honeyui');
+                              if (!header) {
+                                  if (++attempts < maxRetries) {
+                                      setTimeout(insertBannerWhenReady, 200);
+                                  } else {
+                                      console.warn("Banner header not found after max retries.");
+                                  }
+                                  return;
+                              }
+                  
+                              const banner = document.createElement('div');
+                              banner.id = 'banner';
+                              banner.innerHTML = `
+                                  <span class="close-btn" title="${dismissToolTip}">×</span>
+                                  \${message}
+                              `;
+                  
+                              banner.querySelector('.close-btn').addEventListener('click', function () {
+                                  localStorage.setItem(localKey, JSON.stringify({
+                                      id: bannerId,
+                                      until: Date.now() + dismissDuration
+                                  }));
+                                  banner.remove();
+                              });
+                  
+                              header.parentNode.insertBefore(banner, header.nextSibling);
+                          }
+                  
+                          insertBannerWhenReady();
+                      })();
+                      """.stripIndent()
+                  
+                  }
+                  
+                  // Set up the CSS and JS files
+                  def cssUrl = setUp("/userContent/banner.css", textCSS)
+                  def jsUrl = setUp("/userContent/banner.js", textJS)
+                  
+                  // Create the theme elements
+                  def themeElements =  !CONTENT ? [] :  [
+                      new org.jenkinsci.plugins.simpletheme.CssUrlThemeElement(cssUrl),
+                      new org.jenkinsci.plugins.simpletheme.JsUrlThemeElement(jsUrl)
+                  ]
+                  
+                  def descriptor = Jenkins.instance.getDescriptorByType(org.codefirst.SimpleThemeDecorator.class)
+                  descriptor.setElements(themeElements)
+                  descriptor.save()
+          timeoutSeconds: 0
+          itemSource:
+            parameterItemSource: {
+            }
+          inParallel: 0
+          noRetries: 0
+    parameters:
+      - string:
+          trim: true
+          defaultValue: '15'
+          name: DISMISS_DURATION
+          description: Number of minutes to hide banner after closing it
+      - text:
+          trim: false
+          defaultValue: |-
+            CloudBees CI - UPGRADE NOTICE
+            Planned for Tuesday, April 29th, 10 PM
+            Please save any work before then!
+            Here is the <a href="https://www.bbc.com" target="_blank">BBC website</a>
+          name: CONTENT
+          description: Text for the banner
+      - itemParameterDefinition:
+          name: CONTROLLERS
+          itemSource:
+            jenkinsRootItemSource: {
+            }
+          filters:
+            - isMasterOnlineFilter: {
+            }
+    scm:
+      none: {
+      }
+    scmCheckoutStrategy:
+      standard: {
+      }
