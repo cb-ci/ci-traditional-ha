@@ -1,0 +1,22 @@
+services:
+  operations-center:
+    volumes:
+    - ./ssl/jenkins.jks:/tmp/jenkins.jks
+    - ./ssl/jenkins.p12:/tmp/jenkins.p12
+    - ./ssl/cacerts:/tmp/cacerts
+
+  ha-client-controller-1:
+    volumes:
+    - ./ssl/jenkins.jks:/tmp/jenkins.jks
+    - ./ssl/jenkins.p12:/tmp/jenkins.p12
+    - ./ssl/cacerts:/tmp/cacerts
+
+  ha-client-controller-2:
+    volumes:
+    - ./ssl/jenkins.jks:/tmp/jenkins.jks
+    - ./ssl/jenkins.p12:/tmp/jenkins.p12
+    - ./ssl/cacerts:/tmp/cacerts
+
+  haproxy:
+    volumes:
+      - ./ssl/haproxy.pem:/etc/ssl/certs/haproxy.pem

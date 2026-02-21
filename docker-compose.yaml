@@ -1,81 +1,105 @@
 # Cloudbees CI high availability for traditional platforms demo
-# For more details:
-# https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha-install-guide/specific-ha-installation-traditional
-# https://www.youtube.com/watch?v=Qkf9HaA2wio
 
-# ! Do not modify docker-compose.yaml directly, it wil be overwritten by up.sh. Instead, modify this template and env.sh
-
-version: '3'
 services:
   operations-center:
     image: ${DOCKER_IMAGE_OC}
+    platform: linux/amd64
     extra_hosts:
       - "${OC_URL}:${HAPROXY_IP}"
       - "${CLIENTS_URL}:${HAPROXY_IP}"
     #privileged: true
     #user: root
     healthcheck:
-      test: curl --fail http://localhost:8080/whoAmI/api/json?tree=authenticated || exit 1
+      test: curl -k --fail ${HTTP_PROTOCOL}://localhost:${HTTP_PORT}/whoAmI/api/json?tree=authenticated || exit 1
       interval: 3s
       timeout: 3s
-      retries: 50
+      retries: 150
     environment:
       - JAVA_OPTS=${CJOC_JAVA_OPTS}
+      - JENKINS_OPTS=${CJOC_JENKINS_OPTS}
       - CJOC_LOGIN_PW=${CJOC_LOGIN_PW}
       - CJOC_LOGIN_USER=${CJOC_LOGIN_USER}
+      - OC_URL=${HTTP_PROTOCOL}://${OC_URL}
     container_name: operations-center
     volumes:
-    - ${OC_PERSISTENCE}:/var/jenkins_home
+      - ${OC_PERSISTENCE}:/var/jenkins_home
     networks:
       demo-network:
         ipv4_address: ${OC_IP}
+  # Sidecar bunlde-link.yaml init doesent work yet, oc  hostname can not be resolved?
+  init-controllers:
+    image: curlimages/curl
+    extra_hosts:
+      - "${OC_URL}:${HAPROXY_IP}"
+    command: [ "/bin/sh", "-c", "set -x && curl -v -k -L --user '${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}' -XGET -o /var/jenkins_home/bundle-link.yaml '${HTTP_PROTOCOL}://operations-center:${HTTP_PORT}/config-bundle-download-link?id=ha' && cat /var/jenkins_home/bundle-link.yaml" ]
+    container_name: init-controllers
+    healthcheck:
+      test: test -f /var/jenkins_home/bundle-link.yaml
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 2s
+    depends_on:
+      operations-center:
+        condition: service_healthy
+    volumes:
+      - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
+    networks:
+      demo-network:
+        ipv4_address: ${INIT_CONTROLLER_IP}
 
   ha-client-controller-1:
     image: ${DOCKER_IMAGE_CLIENT_CONTROLLER}
+    platform: linux/amd64
     extra_hosts:
       - "${OC_URL}:${HAPROXY_IP}"
-   #privileged: true
-   # user: root
+    #privileged: true
+    # user: root
     healthcheck:
-      test: curl --fail http://localhost:8080/whoAmI/api/json?tree=authenticated || exit 1
-      interval: 3s
+      test: curl -k --fail ${HTTP_PROTOCOL}://localhost:${HTTP_PORT}/whoAmI/api/json?tree=authenticated || exit 1
+      interval: 6s
       timeout: 3s
-      retries: 50
+      retries: 150
     # Required JAVA and JENKINS Options for HA (active/active)
     # https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha-install-guide/specific-ha-installation-traditional#_java_options
     # https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional#_jenkins_args
     environment:
       - JAVA_OPTS=${CONTROLLER_JAVA_OPTS}
       - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
+      - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
     depends_on:
-      operations-center:
-        condition: service_healthy
+      - operations-center
+      - init-controllers
+    # entrypoint: ["sh", "-c", "while [ ! -f /var/jenkins_home/bundle-link.yaml ]; do echo 'wait for bundle-link.yaml' && sleep 1; done;"]
+
     container_name: ha-client-controller-1
     # Controller 1 is mapping the same underlying dir as controller 2. They share the same jenkins_home
     # Cache dir is different for each
     volumes:
-    - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
-    - ${CONTROLLER1_CACHES}:/var/cache/cloudbees-core-cm
+      - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
+      - ${CONTROLLER1_CACHES}:/var/cache/cloudbees-core-cm
     networks:
       demo-network:
-        ipv4_address: ${CLIENT1_IP}
+        ipv4_address: ${CONTROLLER1_IP}
   ha-client-controller-2:
     image: ${DOCKER_IMAGE_CLIENT_CONTROLLER}
+    platform: linux/amd64
     extra_hosts:
       - "${OC_URL}:${HAPROXY_IP}"
-   #privileged: true
-   # user: root
+    #privileged: true
+    # user: root
     healthcheck:
-      test: curl --fail http://localhost:8080/whoAmI/api/json?tree=authenticated || exit 1
-      interval: 3s
+      test: curl -k --fail  ${HTTP_PROTOCOL}://localhost:${HTTP_PORT}/whoAmI/api/json?tree=authenticated || exit 1
+      interval: 6s
       timeout: 3s
-      retries: 50
+      retries: 150
     # Required JAVA and JENKINS Options for HA (active/active)
     # https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha-install-guide/specific-ha-installation-traditional#_java_options
     # https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional#_jenkins_args
     environment:
       - JAVA_OPTS=${CONTROLLER_JAVA_OPTS}
       - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
+      - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
     depends_on:
       operations-center:
         condition: service_healthy
@@ -85,11 +109,11 @@ services:
     # Controller 2 is mapping the same underlying dir as controller 1. They share the same jenkins_home
     # Cache dir is different for each
     volumes:
-    - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
-    - ${CONTROLLER2_CACHES}:/var/cache/cloudbees-core-cm
+      - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
+      - ${CONTROLLER2_CACHES}:/var/cache/cloudbees-core-cm
     networks:
       demo-network:
-        ipv4_address: ${CLIENT2_IP}
+        ipv4_address: ${CONTROLLER2_IP}
   agent:
     #build:
     #  context: .
@@ -98,10 +122,10 @@ services:
     privileged: true
     user: root
     container_name: ssh-agent
-#    expose:
-#      - 22
+    #    expose:
+    #      - 22
     volumes:
-    - ${AGENT_PERSISTENCE}:/home/jenkins/agent
+      - ${AGENT_PERSISTENCE}:/home/jenkins/
     networks:
       demo-network:
         ipv4_address: ${AGENT_IP}
@@ -110,9 +134,10 @@ services:
   haproxy:
     image: ${DOCKER_IMAGE_HAPROXY}
     volumes:
-      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+      - ${HA_PROXY_CONFIG}:/usr/local/etc/haproxy/haproxy.cfg
     ports:
-      - "80:80"
+      - "${HA_PROXY_BIND_PORT}:${HA_PROXY_BIND_PORT}"
+    container_name: haproxy
     networks:
       demo-network:
         ipv4_address: ${HAPROXY_IP}
@@ -154,4 +179,4 @@ networks:
     #  com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
     ipam:
       config:
-        - subnet: ${IP_PREFIX}.0.0/16
+        - subnet: ${IP_PREFIX}.0.0/24

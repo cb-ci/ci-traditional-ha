@@ -1,52 +1,9 @@
 jenkins:
-  agentProtocols:
-  - "Diagnostic-Ping"
-  - "JNLP4-connect"
-  - "OperationsCenter2"
-  - "Ping"
   authorizationStrategy: "cloudBeesRoleBasedAccessControl"
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: false
   disableRememberMe: false
-  labelAtoms:
-  - name: "built-in"
-  markupFormatter: "plainText"
-  mode: NORMAL
-  myViewsTabBar: "standard"
-  noUsageStatistics: true
-  nodeMonitors:
-  - "architecture"
-  - "clock"
-  - diskSpace:
-      freeSpaceThreshold: "1GiB"
-      freeSpaceWarningThreshold: "2GiB"
-  - "swapSpace"
-  - tmpSpace:
-      freeSpaceThreshold: "1GiB"
-      freeSpaceWarningThreshold: "2GiB"
-  - "responseTime"
-  numExecutors: 2
-  primaryView:
-    masters:
-      columns:
-      - "status"
-      - "weather"
-      - "jobName"
-      - "manageMaster"
-      - "totalJobsViewColumn"
-      - "queueSizeViewColumn"
-      - "jenkinsVersionViewColumn"
-      - "listSelectionColumn"
-      jobFilters:
-      - "connectedMasterViewFilter"
-      name: "Controllers"
-      recurse: true
-  projectNamingStrategy: "standard"
-  quietPeriod: 5
-  remotingSecurity:
-    enabled: true
-  scmCheckoutRetryCount: 0
   securityRealm:
     local:
       allowsSignup: false
@@ -56,9 +13,6 @@ jenkins:
         password: ${CJOC_LOGIN_PW}
         name: ${CJOC_LOGIN_USER}
         properties:
-        - "consoleUrlProvider"
-        - "blueSteelRedirectOptOutProperty"
-        - "myView"
         - preferredProvider:
             providerId: "default"
         - "timezone"
@@ -74,24 +28,6 @@ jenkins:
       url: "file:/var/jenkins_home/war/WEB-INF/plugins/update-center.json"
     - id: "cap-core-oc-traditional"
       url: "https://jenkins-updates.cloudbees.com/update-center/envelope-core-oc-traditional/update-center.json"
-  views:
-  - masters:
-      columns:
-      - "status"
-      - "weather"
-      - "jobName"
-      - "manageMaster"
-      - "totalJobsViewColumn"
-      - "queueSizeViewColumn"
-      - "jenkinsVersionViewColumn"
-      - "listSelectionColumn"
-      jobFilters:
-      - "connectedMasterViewFilter"
-      name: "Controllers"
-      recurse: true
-  - all:
-      name: "all"
-  viewsTabBar: "standard"
 beekeeper:
   enabled: true
   securityWarnings:
@@ -101,40 +37,25 @@ beekeeper:
     autoDowngradePlugins: false
     autoUpgradePlugins: true
 cloudBeesCasCServer:
-  disableRemoteValidation: false
-  visibility: false
-globalCredentialsConfiguration:
-  configuration:
-    providerFilter: "none"
-    typeFilter: "none"
-appearance:
-  prism:
-    theme: PRISM
+   defaultBundle: "local/ha"
+   disableRemoteValidation: false
+   visibility: true
 security:
-  anonymizeSupportBundle:
-    enabled: false
-  apiToken:
-    creationOfLegacyTokenEnabled: false
-    tokenGenerationOnCreationEnabled: false
-    usageStatisticsEnabled: true
-  securitySettingsEnforcement:
-    global:
-      realmOnly:
-        canCustomMapping: false
-        canOverride: false
-        defaultMappingFactory: "restrictedEquivalentRAMF"
+ securitySettingsEnforcement:
+   global:
+     realmAndAuthorization:
+       canCustomMapping: false
+       canOverride: false
+       defaultMappingFactory: "restrictedEquivalentRAMF"
+license:
+ certificate: |
+   ${readFile:${JENKINS_HOME}/cb-wildcard-license.cert}
+ key: |
+   ${readFile:${JENKINS_HOME}/cb-wildcard-license.key}
 unclassified:
-  buildDiscarders:
-    configuredBuildDiscarders:
-    - "jobBuildDiscarder"
-  bundleStorageService:
-    activated: false
-    checkOutTimeout: 600
-    pollingPeriod: 120
-    purgeOnDeactivation: false
   bundleUpdateTiming:
-    automaticReload: false
-    automaticRestart: false
+    automaticReload: true
+    automaticRestart: true
     rejectWarnings: false
     reloadAlwaysOnRestart: false
     skipNewVersions: false
@@ -143,35 +64,8 @@ unclassified:
     variableInterpolationEnabledForNonAdmin: false
   headerLabel:
     text: "Managed by CasC"
-  experimentalPlugins:
-    enabled: false
-  fingerprints:
-    fingerprintCleanupDisabled: false
-    storage: "file"
-  hAGlobalConfiguration:
-    bindPort: 0
-    diagnosticPort: 0
-    portRange: 0
-    timeout: 30
   location:
     adminAddress: "Set me up <nobody@nowhere>"
-    url: "http://oc.ha/"
-  mailer:
-    charset: "UTF-8"
-    useSsl: false
-    useTls: false
+    url: ${HTTP_PROTOCOL}://${OC_URL}
   operationsCenterSharedConfiguration:
-    enabled: false
-  pollSCM:
-    pollingThreadCount: 10
-  usageStatisticsCloudBees:
-    disabledJenkinsUsageStatistics: true
-    usageStatisticsCollected: true
-  validationVisualization:
-    quiet: false
-tool:
-  cloudbeesPluginUsageAnalyzer:
     enabled: true
-  mavenGlobalConfig:
-    globalSettingsProvider: "standard"
-    settingsProvider: "standard"

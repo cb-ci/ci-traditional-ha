@@ -33,8 +33,8 @@ graph TD
         Controller2[Controller Replica 2]
     end
     
-    HAProxy -->|Host: client.ha<br>Cookie: cloudbees_sticky| Controller1
-    HAProxy -->|Host: client.ha<br>Cookie: cloudbees_sticky| Controller2
+    HAProxy -->|Host: controller.ha<br>Cookie: cloudbees_sticky| Controller1
+    HAProxy -->|Host: controller.ha<br>Cookie: cloudbees_sticky| Controller2
     
     CJOC <-->|Persistence| CJOCHome[(CJOC Volume)]
     Controller1 <-->|Shared JENKINS_HOME| JenkinsHome[(Shared Local Volume)]
@@ -63,8 +63,8 @@ graph TD
         Controller2[Controller Replica 2]
     end
     
-    HAProxy -->|Host: client.ha<br>Cookie: cloudbees_sticky| Controller1
-    HAProxy -->|Host: client.ha<br>Cookie: cloudbees_sticky| Controller2
+    HAProxy -->|Host: controller.ha<br>Cookie: cloudbees_sticky| Controller1
+    HAProxy -->|Host: controller.ha<br>Cookie: cloudbees_sticky| Controller2
     
     CJOC <-->|Persistence| CJOCHome[(CJOC Volume)]
     Controller1 <-->|Shared JENKINS_HOME| JenkinsHome[(Shared Local Volume)]
@@ -89,7 +89,7 @@ sequenceDiagram
     participant Replica1 as Controller Replica 1
     participant Replica2 as Controller Replica 2
     
-    User->>HAProxy: GET / (Host: client.ha)
+    User->>HAProxy: GET / (Host: controller.ha)
     HAProxy->>Replica1: Forward Request (No Cookie)
     Replica1-->>HAProxy: HTTP 200 OK + Set-Cookie: cloudbees_sticky=xxx
     HAProxy-->>User: HTTP 200 OK + Set-Cookie
@@ -165,7 +165,7 @@ The Operations Center and both controllers are behind HAProxy.
   * use `admin/admin` for login
 * Request a trial license (first option)
 * Click on the pre-provisioned controller "ha" in the Operations Center UI
-* Add `http://client.ha` and click `push configuration` and `join operations center`
+* Add `http://controller.ha` and click `push configuration` and `join operations center`
 * Now you are on a Controller running in HA/HS mode. A test Pipeline job using an SSH agent is already running
 
 # Files
@@ -293,7 +293,7 @@ There are two options on how to access the CloudBees CI demo lab:
 
 * Add the following to your `/etc/hosts` file
 
-> 127.0.0.1 localhost oc.ha client.ha
+> 127.0.0.1 localhost oc.ha controller.ha
 
 * Then open Firefox/Chrome on your PC: [http://oc.ha](http://oc.ha)
 * Optional (if you can not resolve the hostnames): Flush the DNS cache (MacOs)
@@ -332,7 +332,7 @@ docker-compose exec operations-center   cat /var/jenkins_home/secrets/initialAdm
 ![oc-pushconnectiondetails.png](docs/oc-pushconnectiondetails.png)
 ![Screenshot20240919at084705.png](docs/image2.png)
 
-* Required: Push the configuration to http://$CLIENTS_URL  (by default this is <http://client.ha/> )
+* Required: Push the configuration to http://$CLIENTS_URL  (by default this is <http://controller.ha/> )
   * Not required: Try to access http://$CLIENTS_URL/ in Firefox
   * Not required: Request a license and add admin user details
 * (Not required when using CasC) Get the Controller1 initial password
