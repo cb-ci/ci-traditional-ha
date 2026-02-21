@@ -1,23 +1,24 @@
-removeStrategy:
-  rbac: SYNC
-  items: NONE
-items:
-- kind: clientController
-  name: ha
-  description: 'ha'
-  displayName: ha
-  properties:
-  - configurationAsCode: {}
-  - sharedHeaderLabelOptIn:
-      optIn: true
-  - healthReporting:
-      enabled: true
-  - owner:
-      delay: 5
-      owners: ''
-  - envelopeExtension:
-      allowExceptions: false
-  - sharedConfigurationOptOut:
-      optOut: false
-  - webSocket:
-      enabled: true
+kind: clientController
+name: controller-ha
+description: controller-ha
+displayName: controller-ha
+properties:
+- configurationAsCode:
+    bundle: local/${CONTROLLER_BUNDLE_NAME}
+- sharedHeaderLabelOptIn:
+    optIn: true
+- healthReporting:
+    enabled: true
+- optOutProperty:
+    securityEnforcerOptOutMode:
+      optOutNone: {
+        }
+- owner:
+    delay: 5
+    owners: ''
+- envelopeExtension:
+    allowExceptions: false
+- sharedConfigurationOptOut:
+    optOut: false
+- webSocket:
+    enabled: true
