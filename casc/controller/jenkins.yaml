@@ -43,6 +43,7 @@ jenkins:
       retentionStrategy: "cloudbeesHighAvailability"
   numExecutors: 0
 security:
+  #loggedInUsersCanDoAnything: true
   gitHostKeyVerificationConfiguration:
     sshHostKeyVerificationStrategy: "noHostKeyVerificationStrategy"
   # We allow script approval to print out the Controlelr hostname in our test pipeline
