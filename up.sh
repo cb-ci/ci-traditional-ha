@@ -74,14 +74,28 @@ create_volume_dirs() {
   # Inject SSL certificates for HAProxy
   if [[ "$SSL" == "true" ]]; then
     log "Preparing SSL volumes"
-    mkdir -p cloudbees_ci_ha_volumes/haproxy/etc/ssl/certs
+    mkdir -p ${HA_PERSISTENCE}/etc/ssl/certs
     if [[ -f "ssl/haproxy.pem" ]]; then
-        cp -v ssl/haproxy.pem cloudbees_ci_ha_volumes/haproxy/etc/ssl/certs/haproxy.pem
+        cp -v ssl/haproxy.pem ${HA_PERSISTENCE}/etc/ssl/certs/haproxy.pem
     fi
   fi
   
   log "Ensure proper permissions"
   find "$PERSISTENCE_PREFIX" -type d -exec chmod 700 {} +
+  find "$HA_PERSISTENCE" -type d -exec chmod 700 {} +
+  
+  # workaround to avoid https://github.com/testcontainers/testcontainers-java/issues/11222
+  mkdir -p "${OC_PERSISTENCE}"
+  cp -f ./license.crt "${OC_PERSISTENCE}/license.crt"
+  cp -f ./license.key "${OC_PERSISTENCE}/license.key"
+  chmod 600 "${OC_PERSISTENCE}/license.crt" "${OC_PERSISTENCE}/license.key"
+  log "Copied license files to ${OC_PERSISTENCE}"
+
+  mkdir -p "${OC_PERSISTENCE}/init.groovy.d"
+  cp -f ./jenkins_init.groovy.d/init_user.groovy "${OC_PERSISTENCE}/init.groovy.d/init_user.groovy"
+  chmod 644 "${OC_PERSISTENCE}/init.groovy.d/init_user.groovy"
+  log "Copied init_user.groovy to ${OC_PERSISTENCE}/init.groovy.d"
+  # sudo chown -R 1000:1000 ${CJOC_PERSISTENCE} ${CONTROLLER_PERSISTENCE} 
 }
 
 # --- Main Execution ---
@@ -104,6 +118,7 @@ if [[ "$SSL" == "true" ]]; then
   log "SSL mode ENABLED"
   if [[ ! -f "./ssl/haproxy.pem" && ! -f "./ssl/jenkins.crt" && ! -f "./ssl/jenkins.key" && ! -f "./ssl/jenkins.p12" ]]; then
     cd ssl
+    log "Generating self-signed certificates..."
     ./01-createSelfSigned.sh
     cd ..
   fi
@@ -118,21 +133,6 @@ setup_ssh_keys
 
 # Create volume directories
 create_volume_dirs
-
-
-
-# workaround to avoid https://github.com/testcontainers/testcontainers-java/issues/11222
-mkdir -p "${OC_PERSISTENCE}"
-cp -f ./license.crt "${OC_PERSISTENCE}/license.crt"
-cp -f ./license.key "${OC_PERSISTENCE}/license.key"
-chmod 600 "${OC_PERSISTENCE}/license.crt" "${OC_PERSISTENCE}/license.key"
-log "Copied license files to ${OC_PERSISTENCE}"
-
-mkdir -p "${OC_PERSISTENCE}/init.groovy.d"
-cp -f ./jenkins_init.groovy.d/init_user.groovy "${OC_PERSISTENCE}/init.groovy.d/init_user.groovy"
-chmod 644 "${OC_PERSISTENCE}/init.groovy.d/init_user.groovy"
-log "Copied init_user.groovy to ${OC_PERSISTENCE}/init.groovy.d"
-# sudo chown -R 1000:1000 ${CJOC_PERSISTENCE} ${CONTROLLER_PERSISTENCE} 
 
 log "tarting containers"
 docker compose $COMPOSE_FILES up -d --force-recreate

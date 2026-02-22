@@ -13,7 +13,6 @@ credentials:
               username: "jenkins"
 jenkins:
   authorizationStrategy: "cloudBeesRoleBasedAccessControl"
-  authorizationStrategy:
    loggedInUsersCanDoAnything:
      allowAnonymousRead: false
   crumbIssuer:

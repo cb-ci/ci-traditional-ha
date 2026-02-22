@@ -19,9 +19,9 @@ items:
                  */
                 label "ssh-agent"
             }
-            triggers {
+            /*triggers {
                 cron '* * * * *'
-            }
+            }*/
 
             stages {
                 stage('Stage1') {
