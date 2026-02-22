@@ -117,7 +117,7 @@ The setup consists of the following containers:
 * Controller 2
 * SSH-Agent 1
 * HAProxy Load Balancer
-* Optional, but not required: Linux box with Firefox accessible via VNC from an external browser
+* Optional, but not required: Linux box with Firefox/Chromium accessible via VNC from an external browser
 
 The setup is self-sufficient and does not require any modifications on the Docker host or anywhere else outside of the docker compose environment.
 There are two exceptions to highlight:
@@ -149,30 +149,23 @@ The Operations Center and both controllers are behind HAProxy.
 # Quick Start
 
 * Clone this repository
-* Ensure you have an SSH private and public key under the path `~/.ssh/id_rsa` and `~/.ssh/id_rsa.pub`
-  * If you don't have an SSH key, run `ssh-keygen -t rsa -f ~/.ssh/id_rsa` to create one
-  * The key is required for the agent we want to connect to the HA/HS Controller in this demo
-  * If you have your key already under another path or name, adjust it in the `env.sh` configuration file
-* Run `up.sh`
+* Run `up.sh` or `up.sh ssl=true` to start the containers
   * The related containers will start now. The essential configuration are already setup using Configuration as Code
   * You will get redirected to you browser to the Operations center when all container are up and running. This might take some minutes
 * Browser access to the Operations center
   * Option1: Use a Browser in a box: Follow these instructions [Join the containerized browser in a Box](#option1_join_the_containerized_browser_in_a_box)
     * This option doesn't require changes on your host in `/etc/hosts`
   * Option2: Use your Browser on your Machine: Follow these instructions [Use your Firefox/Chrome on your docker host](#option2_use_your_browser_on_your_docker_host)
-    * This option require changes on your host in `/etc/hosts`
+    * This option requires changes on your host in `/etc/hosts`
 * Open the Operations Center
   * use `admin/admin` for login
-* Request a trial license (first option)
-* Click on the pre-provisioned controller "ha" in the Operations Center UI
-* Add `http://controller.ha` and click `push configuration` and `join operations center`
 * Now you are on a Controller running in HA/HS mode. A test Pipeline job using an SSH agent is already running
 
 # Files
 
-[env.sh](env.sh)
+[.env](.env)
 
-The essential variables are explained here; for detailed settings, take a look at the `env.sh` file.
+The essential variables are explained here; for detailed settings, take a look at the `.env` file.
 Usually, you don't need to change something in the env settings
 
 * `OC_URL` is the URL you want the Operations Center to respond on.
@@ -183,13 +176,13 @@ Usually, you don't need to change something in the env settings
 * `CONTROLLER_JENKINS_OPTS` required JENKINS settings for HA/HS  see <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional#_jenkins_args>
 * `CONTROLLER_JAVA_OPTS` required JAVA settings for HA/HS see <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional#_java_options>
 
-[env-ssl.sh](env-ssl.sh)
+[.env-ssl](.env-ssl)
 
 Optional config file containing the settings when running in SSL mode
 
-[docker-compose.yaml.template](docker-compose.yaml.template)
+[docker-compose.yaml](docker-compose.yaml.template)
 
-This template is used to render the `docker-compose.yaml` file using the environment variables in `env.sh`. Please do not modify docker-compose.yaml directly, since it will be overwritten by `up.sh`. Modify this template instead.
+This template is used to render the `docker-compose.yaml` file using the environment variables in `.env`. Please do not modify docker-compose.yaml directly, since it will be overwritten by `up.sh`. Modify this template instead.
 
 [up.sh](up.sh)
 
@@ -260,7 +253,7 @@ An SSH key will also be generated into the `secrets` directory for you when you 
 
 ## Start/Deploy
 
-* Examine `env.sh` and modify if needed.
+* Examine `.env` and modify if needed.
 * Examine `docker-compose.yaml.template` and modify it if needed.
 * Run `up.sh` (or `up.sh ssl=true`)
 * Wait until all components are up and access via one of the browser options
@@ -373,7 +366,7 @@ Join the Controller and add an SSH Credentials (private key)
 
 `ssh-keygen -t rsa -f ~/.ssh/id_rsa`
 
-Adjust the path to the ssh key in the `env.sh` file
+Adjust the path to the ssh key in the `.env` file
 
 > export JENKINS_AGENT_SSH_PUBKEY=$(cat ~/.ssh/id_rsa.pub)
 
@@ -432,7 +425,7 @@ If you hit SSL issues in your browser when you access the Operations center, do 
 To show only headers using a GET request (with no body):
 
 ```
-source ./env.sh
+source ./.env
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -s -D - ${CLIENTS_URL} -o /dev/null
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -s -D - ${CJOC_URL} -o /dev/null
 ```
@@ -441,7 +434,7 @@ To get both the headers and body of the response:
 Use the -v (verbose) option or -i (include headers in the output):
 
 ```
-source ./env.sh
+source ./.env
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -i -v  ${CLIENTS_URL} -o /dev/null
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -i -v  ${CJOC_URL} -o /dev/null
 ```
@@ -449,7 +442,7 @@ curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -i -v  ${CJOC_URL} -o /dev/null
 Send custom host header
 
 ```
-source ./env.sh
+source ./.env
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}  -v -H "Host: custom.example.com" ${CLIENTS_URL} -o /dev/null
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}  -v -H "Host: custom.example.com" ${CJOC_URL} -o /dev/null
 ```
