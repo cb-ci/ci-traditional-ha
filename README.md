@@ -4,6 +4,26 @@ A complete Docker Compose environment demonstrating a [CloudBees CI Traditional 
 
 For more background on CloudBees CI High Availability, refer to the [Resources](#resources) section at the bottom of this document.
 
+# Infrastructure Components
+
+The lab features the following containers:
+
+* **HAProxy Reverse Proxy:** Routes traffic to CJOC and Controllers. Uses `$OC_URL` host header for Operations Center requests and `$CONTROLLER_URL` for controller requests (with sticky session balancing).
+* **Operations Center (CJOC):** Central CloudBees CI management component.
+* **Controllers (2x):** Run in HA/HS (Active/Active) mode. (HS is not realy part of the lab)
+* **SSH-Agent (1x):** Agent container for running pipeline builds.
+* **Webtop (Optional):** A containerized Linux desktop with standard web browsers for accessing the lab.
+
+# Prerequisites
+
+The demo has been verified with:
+
+* **OS:** macOS 14.7
+* **Docker Desktop:** 4.24.0 (Engine: 24.0.6)
+* **Docker Compose:** v2.22.0-desktop.2
+* **Browsers:** Firefox, Google Chrome
+* **CloudBees CI:** 2.541.1.35570
+
 # Architecture
 
 This demonstration orchestrates CloudBees components and an HAProxy load balancer using Docker Compose. It operates self-sufficiently without requiring configuration on the Docker host, with two exceptions:
@@ -105,25 +125,6 @@ sequenceDiagram
     HAProxy-->>User: HTTP 200 OK + New Cookie
 ```
 
-# Infrastructure Components
-
-The lab features the following containers:
-
-* **HAProxy Load Balancer:** Routes traffic to CJOC and Controllers. Uses `$OC_URL` host header for Operations Center requests and `$CONTROLLER_URL` for controller requests (with sticky session balancing).
-* **Operations Center (CJOC):** Central CloudBees CI management component.
-* **Controllers (2x):** Run in HA/HS (Active/Active) mode. (HS is not realy part of the lab)
-* **SSH-Agent (1x):** Agent container for running pipeline builds.
-* **Webtop (Optional):** A containerized Linux desktop with standard web browsers for accessing the lab.
-
-# Prerequisites
-
-The demo has been verified with:
-
-* **OS:** macOS 14.7
-* **Docker Desktop:** 4.24.0 (Engine: 24.0.6)
-* **Docker Compose:** v2.22.0-desktop.2
-* **Browsers:** Firefox, Google Chrome
-
 # Quick Start
 
 1. **Clone the Repository:** Check out the source code to your local machine.
@@ -149,6 +150,19 @@ You will find a controller running in HA mode with a pre-configured SSH agent an
 | **Rolling Restart Controllers** | `./test/controllersRollingRestart.sh` | Performs a rolling restart of the HA controllers. |
 | **Rolling Upgrade Controllers** | `./test/controllersRollingUpgrade.sh` | Performs a rolling upgrade of the HA controllers. |
 | **Clean Up** | `./cleanUp.sh` | Deletes the docker persistence directories on the host. |
+
+## Restart container
+
+```
+docker-compose restart <container>
+```
+
+Example:
+
+```
+docker-compose restart ha-client-controller-1
+docker-compose restart ha-client-controller-2
+```
 
 # File Reference
 

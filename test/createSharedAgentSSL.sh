@@ -1,27 +1,51 @@
-#! /bin/bash
+#!/usr/bin/env bash
+#
+# Script to create and launch a Secure Shared Agent connected to CJOC.
+# It uses the CasC bundle management API to provision the agent, retrieves the secret,
+# downloads the agent.jar, and launches the agent via JNLP over WebSockets with SSL.
 
+# --- Configuration & Defaults ---
+export TOKEN="${TOKEN:-<ADMIN_ID>:<TOKENXXXXXX>}"
+export CJOC_URL="${CJOC_URL:-https://oc.ha}"
+export SHARED_AGENT_NAME="${SHARED_AGENT_NAME:-SharedAgentTest}"
+export SHARED_AGENT_LABEL="${SHARED_AGENT_LABEL:-shared-agent}"
+export SHARED_AGENT_REMOTE_FS="${SHARED_AGENT_REMOTE_FS:-/tmp}"
+export KEYSTORE_PASSWORD="${KEYSTORE_PASSWORD:-changeit}"
+export KEYSTORE_PATH="${KEYSTORE_PATH:-/tmp/jenkins.p12}"
+export TRUSTSTORE_PATH="${TRUSTSTORE_PATH:-/tmp/cacerts}"
 
-export TOKEN="<ADMIN_ID>:<TOKENXXXXXX>"
-export CJOC_URL="https://oc.ha"
-export SHARED_AGENT_NAME="SharedAgentTest"
-export SHARED_AGENT_LABEL="shared-agent"
-export SHARED_AGENT_REMOTE_FS="/tmp"
+# --- Helper Functions ---
+log() {
+  echo -e "[$(date +'%Y-%m-%dT%H:%M:%S%z')] INFO: $*"
+}
 
-#  -Djavax.net.debug=ssl,handshake -Djava.security.debug=jca
-#  -Djavax.net.ssl.keyStoreType=PKCS12 -Djavax.net.ssl.trustStoreType=PKCS12
-#  -Djavax.net.ssl.keyStoreType=JKS -Djavax.net.ssl.trustStoreType=JKS
-#  -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStorePassword=changeit
-#  -Djavax.net.ssl.keyStore=/tmp/jenkins.p12  -Djavax.net.ssl.trustStore=/tmp/cacerts
+error() {
+  echo -e "[$(date +'%Y-%m-%dT%H:%M:%S%z')] ERROR: $*" >&2
+  exit 1
+}
 
-export VM_ARGS="-Djavax.net.ssl.keyStorePassword=changeit 
-  -Djavax.net.ssl.trustStorePassword=changeit 
-  -Djavax.net.ssl.keyStore=/tmp/jenkins.p12 
-   -Djavax.net.ssl.trustStore=/tmp/cacerts"
+cleanup() {
+  # Clean up temporary generation files
+  rm -f sharedAgent.yaml agent_secret.groovy
+}
 
-echo "------------------  RENDER SHARED_AGENT ITEM YAML ------------------"
-#see https://docs.cloudbees.com/docs/cloudbees-ci/latest/casc-oc/items#_example_items_yaml_file
-# We render the CasC template instances for the item (sharedAgent)
-# All variables  will be substituted
+# Trap EXIT to always trigger cleanup
+trap cleanup EXIT
+
+# --- Validation ---
+if [[ "$TOKEN" == "<ADMIN_ID>:<TOKENXXXXXX>" ]]; then
+  error "Please set a valid TOKEN environment variable."
+fi
+
+# JVM Arguments required for SSL configuration
+export VM_ARGS="-Djavax.net.ssl.keyStorePassword=${KEYSTORE_PASSWORD}
+  -Djavax.net.ssl.trustStorePassword=${KEYSTORE_PASSWORD}
+  -Djavax.net.ssl.keyStore=${KEYSTORE_PATH}
+  -Djavax.net.ssl.trustStore=${TRUSTSTORE_PATH}"
+
+log "--------------------------------------------------------"
+log " Rendering Shared Agent CasC YAML"
+log "--------------------------------------------------------"
 cat << EOF > sharedAgent.yaml
 removeStrategy:
   rbac: SYNC
@@ -29,7 +53,7 @@ removeStrategy:
 items:
 - kind: sharedAgent
   name: ${SHARED_AGENT_NAME}
-  description: ''
+  description: 'Auto-provisioned Shared Agent for testing'
   displayName: ${SHARED_AGENT_NAME}
   labels: ${SHARED_AGENT_LABEL}
   launcher:
@@ -49,30 +73,50 @@ items:
     sharedNodeRetentionStrategy: {}
 EOF
 
-cat sharedAgent.yaml
+log "YAML payload created successfully."
 
-echo "------------------  CREATE/UPDATE SHARED AGENT ------------------"
-# see https://docs.cloudbees.com/docs/cloudbees-ci-api/latest/bundle-management-api
-curl -k -D- --user $TOKEN \
-   "${CJOC_URL}/casc-items/create-items" \
-    -H "Content-Type:text/yaml" \
-   --data-binary @sharedAgent.yaml
+log "--------------------------------------------------------"
+log " Provisioning agent in Operations Center"
+log "--------------------------------------------------------"
+HTTP_STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" --user "$TOKEN" \
+  "${CJOC_URL}/casc-items/create-items" \
+  -H "Content-Type:text/yaml" \
+  --data-binary @sharedAgent.yaml)
 
-echo "------------------  GET AGENT SECRET ------------------"
-#see https://docs.cloudbees.com/docs/cloudbees-ci-kb/latest/client-and-managed-controllers/how-to-find-agent-secret-key#_operations_center_shared_agents
-echo "def sharedAgent = Jenkins.getInstance().getItems(com.cloudbees.opscenter.server.model.SharedSlave.class).find { it.launcher != null && it.launcher.class.name == 'com.cloudbees.opscenter.server.jnlp.slave.JocJnlpSlaveLauncher' && it.name == '$SHARED_AGENT_NAME'}; return sharedAgent?.launcher.getJnlpMac(sharedAgent)" > agent_secret.groovy
-AGENT_SECRET=$(curl -XPOST --data-urlencode  "script=$(cat ./agent_secret.groovy)" -L -s --user $TOKEN $CJOC_URL/scriptText)
-AGENT_SECRET=$(echo $AGENT_SECRET | sed "s#Result: ##g")
-echo  "AGENT SECRET: $AGENT_SECRET"
+if [[ "$HTTP_STATUS" -ne 200 && "$HTTP_STATUS" -ne 204 ]]; then
+  error "Failed to create shared agent. HTTP Status: $HTTP_STATUS"
+fi
+log "Agent CasC bundle applied successfully."
 
-echo "------------------  START AGENT CONNECTION ------------------"
-#Download agent.jar
-curl -k -sO $CJOC_URL/jnlpJars/agent.jar
-chmod a+x agent.jar
-#Launch agent
-java -jar  ${VM_ARGS} agent.jar -url $CJOC_URL -name $SHARED_AGENT_NAME -secret $AGENT_SECRET -workDir $SHARED_AGENT_REMOTE_FS -webSocket
+log "--------------------------------------------------------"
+log " Retrieving Agent Secret"
+log "--------------------------------------------------------"
+cat << 'EOF' > agent_secret.groovy
+def sharedAgent = Jenkins.getInstance().getItems(com.cloudbees.opscenter.server.model.SharedSlave.class).find { 
+  it.launcher != null && 
+  it.launcher.class.name == 'com.cloudbees.opscenter.server.jnlp.slave.JocJnlpSlaveLauncher' && 
+  it.name == binding.variables.get('SHARED_AGENT_NAME')
+}
+return sharedAgent?.launcher?.getJnlpMac(sharedAgent)
+EOF
 
-#RUN in background
-#nohup java -jar agent.jar -url $CJOC_URL -name $SHARED_AGENT_NAME -secret $AGENT_SECRET -workDir $SHARED_AGENT_REMOTE_FS -webSocket  2>&1 & > /dev/null
-#echo $! > $AGENT_NAME.pid
-#tail -f nohup.out
+AGENT_SECRET=$(curl -k -s -XPOST --data-urlencode "script=$(cat ./agent_secret.groovy)" -L --user "$TOKEN" "$CJOC_URL/scriptText")
+AGENT_SECRET=$(echo "$AGENT_SECRET" | sed "s#Result: ##g" | xargs)
+
+if [[ -z "$AGENT_SECRET" || "$AGENT_SECRET" == "null" ]]; then
+  error "Failed to retrieve the agent secret. Check script execution or agent name."
+fi
+log "Agent Secret retrieved successfully: $AGENT_SECRET"
+
+log "--------------------------------------------------------"
+log " Initializing Agent Connection"
+log "--------------------------------------------------------"
+if [[ ! -f "agent.jar" ]]; then
+  log "Downloading agent.jar from $CJOC_URL..."
+  curl -k -sO "${CJOC_URL}/jnlpJars/agent.jar"
+  chmod a+x agent.jar
+fi
+
+log "Launching agent..."
+java -jar ${VM_ARGS} agent.jar -url "${CJOC_URL}" -name "${SHARED_AGENT_NAME}" -secret "${AGENT_SECRET}" -workDir "${SHARED_AGENT_REMOTE_FS}" -webSocket
+

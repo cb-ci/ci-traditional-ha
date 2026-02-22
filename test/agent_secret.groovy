@@ -1,0 +1,1 @@
+def sharedAgent = Jenkins.getInstance().getItems(com.cloudbees.opscenter.server.model.SharedSlave.class).find { it.launcher != null && it.launcher.class.name == 'com.cloudbees.opscenter.server.jnlp.slave.JocJnlpSlaveLauncher' && it.name == 'SharedAgentTest'}; return sharedAgent?.launcher.getJnlpMac(sharedAgent)
