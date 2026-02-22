@@ -26,7 +26,7 @@ Two models are supported:
 graph TD
     Client(User / Browser) -->|HTTP 80 / 8080| HAProxy[HAProxy Load Balancer]
     
-    HAProxy -->|Host: oc.ha| CJOC[Operations Center]
+    HAProxy -->|Host: oc.ha<br>Port: 8080| CJOC[Operations Center]
     
     subgraph HA_Controllers ["HA Controllers"]
         Controller1[Controller Replica 1]
@@ -56,7 +56,7 @@ graph TD
 graph TD
     Client(User / Browser) -->|HTTPS 443 / 8443| HAProxy[HAProxy Load Balancer]
     
-    HAProxy -->|Host: oc.ha| CJOC[Operations Center]
+    HAProxy -->|Host: oc.ha<br>Port: 8443| CJOC[Operations Center]
     
     subgraph HA_Controllers ["HA Controllers"]
         Controller1[Controller Replica 1]
