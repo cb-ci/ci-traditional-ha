@@ -169,7 +169,8 @@ docker-compose restart ha-client-controller-2
 * **[`.env`](.env) and [`.env-ssl`](.env-ssl):** Contains essential variables (`OC_URL`, `CONTROLLER_URL`, image versions, HA parameters). Standard use cases do not require modification.
 * **[`docker-compose.yaml`](docker-compose.yaml):** docker-compose configuration.
 * **[`docker-compose.ssl.yaml`](docker-compose.ssl.yaml):** docker-compose overlay configuration for HTTPS mode.
-* **[`up.sh`](up.sh) / [`down.sh`](down.sh):** Primary utility scripts for lab lifecycle management.
+* **[`up.sh`](up.sh):** Primary utility script to start the lab.
+* **[`down.sh`](down.sh):** Primary utility script to stop the lab.
 * **[`cleanUp.sh`](cleanUp.sh):** Hard reset script to drop persistence volumes.
 * **[`ssl/01-createSelfSigned.sh`](ssl/01-createSelfSigned.sh):** Generates keys and certificates required for HTTPS mode.
 * **`secrets/`:** Auto-generated directory containing SSH keys injected into Controllers by CasC.
