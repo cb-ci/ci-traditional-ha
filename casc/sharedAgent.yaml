@@ -1,0 +1,21 @@
+kind: sharedAgent
+name: mySharedAgent
+description: ''
+displayName: mySharedAgent
+labels: mySharedAgent
+launcher:
+  inboundAgent:
+    webSocket: false
+    agentStartupOptions: -webSocket
+    workDirSettings:
+      remotingWorkDirSettings:
+        internalDir: remoting
+        disabled: false
+        failIfWorkDirIsMissing: false
+    vmargs: -Djavax.net.ssl.keyStore=/tmp/jenkins.jks -Djavax.net.ssl.keyStorePassword=changeit  -Djavax.net.ssl.trustStore=/tmp/cacerts  -Djavax.net.ssl.trustStorePassword=changeit
+mode: NORMAL
+numExecutors: 1
+remoteFS: /tmp
+retentionStrategy:
+  always: {
+  }

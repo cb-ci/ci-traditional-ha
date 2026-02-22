@@ -1,161 +1,147 @@
 #!/bin/bash
-set +x
+set -euo pipefail
 
-echo "#### Verify if Docker Desktop is running"
-if docker info >/dev/null 2>&1
-then
- echo "Docker is running"
-else
- echo "DOCKER IS NOT RUNNING. Start Docker Desktop first!!"
- exit 2
-fi
+# --- Colors for Output ---
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+# --- Functions ---
 
-echo "#### Source default settings file "
-source ./env.sh
+log() { echo -e "${BLUE}[INFO]${NC} $1"; }
+success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
+error() { echo -e "${RED}[ERROR]${NC} $1" >&2; }
 
-echo "#### Verify if SSL is enabled"
-SSL=false
-for arg in "$@"; do
-  if [[ $arg == "ssl=true" ]]; then
-    SSL=true
+validate_prerequisites() {
+  log "Validating prerequisites"
+  if ! command -v docker >/dev/null 2>&1; then
+    error "docker' command not found. Please install Docker Desktop."
+    exit 1
   fi
-done
-if [[ $SSL == true ]]; then
-  echo "SSL is enabled: source ssl settings file"
-  SSL_DIR="ssl"
-  # Check each file individually
-  for file in cacerts jenkins.jks jenkins.pem; do
-    if [[ ! -f "$SSL_DIR/$file" ]]; then
-      echo "Missing file: $SSL_DIR/$file"
-      echo "Create a certificate first to run in SSL mode. Run:"
-      echo "cd $SSL_DIR && ./01-createSelfSigned.sh"
-      exit 2
-    fi
-  done
-  #Sorce SSl specific overrides
-  source ./env-ssl.sh
-else
-  echo "SSL is disabled."
-fi
-
-echo "#### Generate SSH key to secrets/${SSH_KEY_ID}"
-if [[ -e "$SSH_PRIVATE_KEY_PATH" && -e "$SSH_PUBLIC_KEY_PATH" ]]; then
-    echo "$SSH_PUBLIC_KEY_PATH and $SSH_PUBLIC_KEY_PATH exist already. Delete them manually if you want to re-generate the SSH keys"
-else
-    echo "$SSH_PRIVATE_KEY_PATH or $SSH_PUBLIC_KEY_PATH file do not exist. They will be generated now"
-    ssh-keygen -t rsa -b 2048 -f secrets/${SSH_KEY_ID} -N ""
-fi
-
-echo "#### Assign $SSH_PUBLIC_KEY_PATH to JENKINS_AGENT_SSH_PUBKEY"
-# Expose SSH PUP_KEY  to Agent authorized_key , see https://hub.docker.com/r/jenkins/ssh-agent for details
-export JENKINS_AGENT_SSH_PUBKEY=$(cat $SSH_PUBLIC_KEY_PATH)
-echo $JENKINS_AGENT_SSH_PUBKEY
-
-echo "#### Create browser volume in ${BROWSER_PERSISTENCE}"
-# create dir for browser persistence
-mkdir -p ${BROWSER_PERSISTENCE}
-
-
-
-echo "#### Create Splunk related volume in $SPLUNK_PERSISTENCE"
-
-mkdir -p $SPLUNK_PERSISTENCE/var
-mkdir -p $SPLUNK_PERSISTENCE/etc
-
-echo "#### Create Controller related volumes like JENKINS_HOME and cache dirs in $PERSISTENCE_PREFIX"
-# Create cache dirs for HA Controller
-# see https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional#_java_options
-# see https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional#_jenkins_args
-createCaches () {
-  mkdir -p ${1}/caches/git
-  mkdir -p ${1}/caches/github-branch-source
-  mkdir -p ${1}/plugins
-  mkdir -p ${1}/war
-  mkdir -p ${1}/tmp
+  if ! command -v envsubst >/dev/null 2>&1; then
+    error "envsubst' command not found. Please install 'gettext'."
+    exit 1
+  fi
+  if [[ ! -f "./license.crt" || ! -f "./license.key" ]]; then
+    error "CloudBees CI license files './license.crt' './license.key' not found. Create them or copy them to the current directory"
+    exit 1
+  fi
 }
 
-#create cache dirs for controllers
-createCaches ${CONTROLLER1_CACHES}
-createCaches ${CONTROLLER2_CACHES}
-createCaches ${CONTROLLER3_CACHES}
-#create shared JENKINS_HOME
-mkdir -p ${CONTROLLER_PERSISTENCE}
-# create dir for controller casc bundle
-mkdir -p ${CONTROLLER_PERSISTENCE}/cascbundle
-# copy controller casc bundle to JENKINS_HOME/cascbundle
-cp -Rf casc/controller/*.yaml ${CONTROLLER_PERSISTENCE}/cascbundle/
-# We copy the $SSH_PRIVATE_KEY_PATH to the JENKINS_HOME dir so we can used it in casc controller bundle to initialize the ssh-agent credential
-cp -vf $SSH_PRIVATE_KEY_PATH $CONTROLLER_PERSISTENCE/id_rsa
-chmod 600 $CONTROLLER_PERSISTENCE/id_rsa
+setup_ssh_keys() {
+  log "Managing SSH keys"
+  mkdir -p secrets
+  # Override SSH key paths to local secrets for demo consistency
+  export SSH_PRIVATE_KEY_PATH="$(pwd)/secrets/agent_id_rsa"
+  export SSH_PUBLIC_KEY_PATH="$(pwd)/secrets/agent_id_rsa.pub"
 
-if [[ $SSL == true ]]; then
-  echo "#### Create HAProxy volumes JENKINS_HOME in $HAPROXY_PERSISTENCE"
-  mkdir -p $HAPROXY_PERSISTENCE
-  # Create dir for trusted self signed cert.
-  #mkdir -p $HAPROXY_PERSISTENCE/usr/local/share/ca-certificates/
-  mkdir -p $HAPROXY_PERSISTENCE/etc/ssl/certs
-  #Copy cert pem to alpines /usr/local/share/ca-certificates/ directory because HAProxy must trust this cert in the backend and fronted
-  #cp -v ssl/jenkins.pem  $HAPROXY_PERSISTENCE/usr/local/share/ca-certificates/
-  cp -v ssl/haproxy.pem  $HAPROXY_PERSISTENCE/etc/ssl/certs
-fi
+  if [[ -f "$SSH_PRIVATE_KEY_PATH" && -f "$SSH_PUBLIC_KEY_PATH" ]]; then
+    log "Using existing SSH keys in secrets/"
+  else
+    log "Generating new SSH keys..."
+    ssh-keygen -t rsa -b 2048 -f "$SSH_PRIVATE_KEY_PATH" -N ""
+  fi
+  export JENKINS_AGENT_SSH_PUBKEY=$(cat "$SSH_PUBLIC_KEY_PATH")
+}
 
+create_volume_dirs() {
+  log "Creating persistence volumes in $PERSISTENCE_PREFIX"
+  mkdir -p "$BROWSER_PERSISTENCE"
+  mkdir -p "$OC_PERSISTENCE/cascbundle"
+  mkdir -p "$CONTROLLER_PERSISTENCE/cascbundle"
+  mkdir -p "$AGENT_PERSISTENCE"
+  
+  # Create controller caches
+  for i in 1 2; do
+    local cache_dir_var="CONTROLLER${i}_CACHES"
+    local cache_dir="${!cache_dir_var}"
+    mkdir -p "${cache_dir}/caches/git"
+    mkdir -p "${cache_dir}/caches/github-branch-source"
+    mkdir -p "${cache_dir}/plugins"
+    mkdir -p "${cache_dir}/war"
+  done
 
+  log "Provision CasC bundles"
+  cp -Rf casc/cjoc "$OC_PERSISTENCE/cascbundle/"
+  cp -Rf casc/controller "$OC_PERSISTENCE/cascbundle"
+  
+  log "Inject SSH key for CasC"
+  cp -vf "$SSH_PRIVATE_KEY_PATH" "$CONTROLLER_PERSISTENCE/id_rsa"
+  chmod 600 "$CONTROLLER_PERSISTENCE/id_rsa"
+  
+  # Inject SSL certificates for HAProxy
+  if [[ "$SSL" == "true" ]]; then
+    log "Preparing SSL volumes"
+    mkdir -p cloudbees_ci_ha_volumes/haproxy/etc/ssl/certs
+    if [[ -f "ssl/haproxy.pem" ]]; then
+        cp -v ssl/haproxy.pem cloudbees_ci_ha_volumes/haproxy/etc/ssl/certs/haproxy.pem
+    fi
+  fi
+  
+  log "Ensure proper permissions"
+  find "$PERSISTENCE_PREFIX" -type d -exec chmod 700 {} +
+}
 
-echo "#### Create Operations Center related volumes JENKINS_HOME in ${OC_PERSISTENCE}"
-# create JENKINS_HOME dir for cjoc and tmp dir to extract the war file (Docker leads to "Not space left on device" otherwhise after a while
-mkdir -p ${OC_PERSISTENCE}/tmp
-# create dir for cjoc casc bundle
-mkdir -p ${OC_PERSISTENCE}/cascbundle/cjoc
-# copy cjoc casc bundle to JENKINS_HOME/cascbundle
-cp -Rf casc/cjoc/*.yaml ${OC_PERSISTENCE}/cascbundle/cjoc
+# --- Main Execution ---
 
-mkdir -p ${OC_PERSISTENCE}/cascbundle/controller/ha
-# copy cjoc casc bundle to JENKINS_HOME/cascbundle
-cp -Rf casc/controller/*.yaml ${OC_PERSISTENCE}/cascbundle/controller/ha
+validate_prerequisites
 
-echo "#### Create Agent volume in ${AGENT_PERSISTENCE}"
-# create dir for agent
-mkdir -p ${AGENT_PERSISTENCE}
+source .env
 
-echo "#### Set volume permissions"
-# chmod to jenkins id, not required yet, maybe later when using NFS
-#chown -R 1000:1000 ${CONTROLLER2_CACHES}
-#chown -R 1000:1000 ${CONTROLLER1_CACHES}
-#chown -R 1000:1000 ${CONTROLLER_PERSISTENCE}
-#chown -R 1000:1000 ${OC_PERSISTENCE}
-#chown -R 1000:1000 ${AGENT_PERSISTENCE}
+SSL=false
+COMPOSE_FILES="-f docker-compose.yaml"
 
-# Not sure if we need to chmod
-chmod -R 700 ${CONTROLLER2_CACHES}
-chmod -R 700 ${CONTROLLER1_CACHES}
-chmod 700 ${CONTROLLER_PERSISTENCE}
-chmod 700 ${OC_PERSISTENCE}
-chmod 700 ${AGENT_PERSISTENCE}
+for arg in "$@"; do
+  if [[ "$arg" == "ssl=true" ]]; then
+    SSL=true
+    break
+  fi
+done
 
-echo "#### Render the docker compose template "
-envsubst < docker-compose.yaml > docker-compose.yaml.rendered
-
-echo "#### Start the containers"
-docker compose up -d --force-recreate
-
-echo "#### All containers are started now. Data is persisted in ${PERSISTENCE_PREFIX}"
-
-echo "#### Open ${OC_URL} "
-echo "Verify if you have updated your /etc/hosts with  ${OC_URL} and  ${CLIENTS_URL}"
-if ping -c 1 "${OC_URL}" > /dev/null 2>&1 && ping -c 1 "${CLIENTS_URL}" > /dev/null 2>&1
-then
-    echo "Host name resolution successful for ${OC_URL} and ${CLIENTS_URL}."
-    open ${HTTP_PROTOCOL}://${OC_URL}
+if [[ "$SSL" == "true" ]]; then
+  log "SSL mode ENABLED"
+  if [[ ! -f "./ssl/haproxy.pem" && ! -f "./ssl/jenkins.crt" && ! -f "./ssl/jenkins.key" && ! -f "./ssl/jenkins.p12" ]]; then
+    cd ssl
+    ./01-createSelfSigned.sh
+    cd ..
+  fi
+  source .env-ssl
+  COMPOSE_FILES="$COMPOSE_FILES -f docker-compose.ssl.yaml"
 else
-    echo """
-         Host name resolution failed for ${OC_URL} and ${CLIENTS_URL} om Docker host in /etc/hosts
-         That's fine, so we open a browser in a container box in your browser:
-         * There: Open Firefox from the 'APPLICATIONS' menu top to the left
-         * Then open ${HTTP_PROTOCOL}://${OC_URL} in the URL bar
-         """
-    open http://localhost:3000
+  log "SSL mode DISABLED"
 fi
 
+# Setup SSH keys
+setup_ssh_keys
+
+# Create volume directories
+create_volume_dirs
 
 
 
+# workaround to avoid https://github.com/testcontainers/testcontainers-java/issues/11222
+mkdir -p "${OC_PERSISTENCE}"
+cp -f ./license.crt "${OC_PERSISTENCE}/license.crt"
+cp -f ./license.key "${OC_PERSISTENCE}/license.key"
+chmod 600 "${OC_PERSISTENCE}/license.crt" "${OC_PERSISTENCE}/license.key"
+log "Copied license files to ${OC_PERSISTENCE}"
+
+mkdir -p "${OC_PERSISTENCE}/init.groovy.d"
+cp -f ./jenkins_init.groovy.d/init_user.groovy "${OC_PERSISTENCE}/init.groovy.d/init_user.groovy"
+chmod 644 "${OC_PERSISTENCE}/init.groovy.d/init_user.groovy"
+log "Copied init_user.groovy to ${OC_PERSISTENCE}/init.groovy.d"
+# sudo chown -R 1000:1000 ${CJOC_PERSISTENCE} ${CONTROLLER_PERSISTENCE} 
+
+log "tarting containers"
+docker compose $COMPOSE_FILES up -d --force-recreate
+
+log "Stack is starting. Resources persisted in: $PERSISTENCE_PREFIX"
+
+if ping -c 1 "$OC_URL" > /dev/null 2>&1; then
+  log "Host resolution for $OC_URL OK."
+  log "Access Operations Center at: ${HTTP_PROTOCOL}://${OC_URL}"
+else
+  warn "Host resolution failed for $OC_URL. Please update /etc/hosts or use Webtop at http://localhost:3000"
+fi

@@ -3,93 +3,51 @@ removeStrategy:
   items: NONE
 items:
 - kind: pipeline
-  name: testAgent
+  name: testpipeline
   concurrentBuild: true
   definition:
     cpsFlowDefinition:
       sandbox: true
       script: |
-       //Print Controller hostname to console, requires script approval!
-        def controllerHostName(){           
-            def hostname = InetAddress.getLocalHost().getHostName()
-            echo "Jenkins Controller Hostname: ^${hostname}"
-        }
         /**
-         * Request was, if an pipeline using an Agent gets reconnected to the next replica when the active replica fails
+         * Request was, if an pipeline using an SSH Agent gets reconnected to the next replica when the active replica fails
          */
         pipeline {
-            agent none
-            parameters {
-              choice choices: ['ssh-agent', 'static-inbound-agent', 'shared-agent'], description: 'agent label to be used', name: 'agentlabel'
+            agent {
+                /**
+                 * This label reference an SSH agent
+                 */
+                label "ssh-agent"
             }
-        
-            /** trigger every minute  
             triggers {
                 cron '* * * * *'
-            }*/
+            }
+
             stages {
                 stage('Stage1') {
-                    agent {
-                       label {
-                         label "${params.agentlabel}"
-                         retries 3
-                       }
-                     }
                     steps {
-                        controllerHostName()
+                        script {
+                            //Print Controller hostname to console, requires script approval!
+                            def hostname = InetAddress.getLocalHost().getHostName()
+                            echo "Jenkins Controller Hostname: ^${hostname}"
+                        }
                         //Print agent hostname to console and pause the build for X seconds
                         sh '''
-                            # set +x
-                            # Get the current time in seconds since epoch
-                            start_time=$(date +%s)
-                            # Loop until 60 seconds have passed
-                            while [ $(($(date +%s) - start_time)) -lt 600 ]; do
-                                echo "Running... $(($(date +%s) - start_time)) seconds elapsed"
-                                printf '%s %s\n' "$(date) Running on Agent-Pod: $(hostname)"
-                                # sleep for X sec, kill the active replica now and check if SSH agent gets reconnected to the other replica
-                                sleep 10
-                            done    
-                        '''                        
-                    }
-                    post {
-                      always {
-                         controllerHostName()
-                      }
+                            set +x
+                            printf '%s %s\n' "$(date) Running on Agent-Pod: $(hostname)"
+                            #sleep for 60 sec, kill the active replica now and check if SSH agent gets reconnected to the other replica
+                            sleep 60
+                        '''
                     }
                 }
             }
         }
-
-
   description: ''
   disabled: false
-  displayName: test-agent
-  resumeBlocked: false
-- kind: pipeline
-  name: testTraces
-  concurrentBuild: true
-  definition:
-   cpsFlowDefinition:
-    sandbox: true
-    script: |
-     pipeline {
-         agent {
-             label "ssh-agent"
-         }
-         stages {
-             stage('Stage1') {
-                 steps {
-                     echo 'Hello Stage1'
-                 }
-             }
-             stage('Stage2') {
-                 steps {
-                     echo 'Hello Stage2'
-                 }
-             }
-         }
-     }
-  description: ''
-  disabled: false
-  displayName: testTraces
+  displayName: testpipeline
+  properties:
+  - pipelineTriggers:
+      triggers:
+      - cron:
+          spec: '* * * * *'
   resumeBlocked: false

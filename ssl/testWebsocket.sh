@@ -7,7 +7,7 @@ JENKINS_URL=https://${HOSTNAME}:443
 #    -H "Upgrade: websocket" \
 #    -H "Host: oc.ha" \
 #    -H "Origin: https://oc.ha" \
-#    -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
+#    -H "Sec-WebSocket-Key: KEY==" \
 #    -H "Sec-WebSocket-Version: 13" \
 #    https://oc.ha/ws
 #
@@ -16,16 +16,16 @@ JENKINS_URL=https://${HOSTNAME}:443
 #      -H "Upgrade: websocket" \
 #      -H "Host: oc.ha" \
 #      -H "Origin: https://oc.ha" \
-#      -H "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
+#      -H "Sec-WebSocket-Key: KEY==" \
 #      -H "Sec-WebSocket-Version: 13" \
 #      https://oc.ha/wscontrollers
 
 #curl --http1.1 -i -N --header "Connection: Upgrade" --header "Upgrade: websocket" \
-# --header "Host: $HOSTNAME" --header "Origin: $HOSTNAME" --header "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
+# --header "Host: $HOSTNAME" --header "Origin: $HOSTNAME" --header "Sec-WebSocket-Key: KEY==" \
 # --header "Sec-WebSocket-Version: 13" --header "Secret-Key:SECRET" \
 # --header "Node-Name:my-agent" $JENKINS_URL/wscontrollers/
 
- # --header "X-Remoting-Capability:rO0ABXNyABpodWRzb24ucmVtb3RpbmcuQ2FwYWJpbGl0eQAAAAAAAAABAgABSgAEbWFza3hwAAAAAAAAAf4=" \
+ # --header "X-Remoting-Capability:KEY=" \
 
 
 
@@ -43,4 +43,4 @@ java \
 -Djavax.net.ssl.trustStore=$CACERTS \
 -Djavax.net.ssl.trustStorePassword=$KS_PW \
 -Djavax.net.ssl.trustStoreType=JKS \
--jar jenkins-cli.jar -auth "admin:XXXXX"  -webSocket -s https://client.ha/   help
+-jar jenkins-cli.jar -auth "admin:XXXXX"  -webSocket -s https://controller.ha/   help

@@ -2,7 +2,6 @@ plugins:
 - id: antisamy-markup-formatter
 - id: apache-httpcomponents-client-4-api
 - id: asm-api
-- id: audit-trail
 - id: aws-credentials
 - id: aws-java-sdk-ec2
 - id: aws-java-sdk-minimal
@@ -88,7 +87,6 @@ plugins:
 - id: nectar-rbac
 - id: node-iterator-api
 - id: okhttp-api
-- id: opentelemetry
 - id: operations-center-agent
 - id: operations-center-client
 - id: operations-center-cloud
@@ -105,9 +103,7 @@ plugins:
 - id: plain-credentials
 - id: plugin-util-api
 - id: prism-api
-- id: remoting-opentelemetry
 - id: scm-api
-- id: simple-theme-plugin
 - id: script-security
 - id: snakeyaml-api
 - id: ssh-credentials

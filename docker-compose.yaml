@@ -1,182 +1,88 @@
 # Cloudbees CI high availability for traditional platforms demo
-# For more details:
-# https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha-install-guide/specific-ha-installation-traditional
-# https://www.youtube.com/watch?v=Qkf9HaA2wio
 
-# ! Do not modify docker-compose.yaml directly, it wil be overwritten by up.sh. Instead, modify this template and env.sh
-
-# version attribute is deprecated
-#version: '3'
 services:
-  splunk:
-    #image: splunk/splunk:latest
-    image: splunk/splunk:9.4
-    extra_hosts:
-      - "${SPLUNK_URL}:${SPLUNK_IP}"
-    platform: linux/amd64
-    container_name: splunk
-    environment:
-      - SPLUNK_START_ARGS=--accept-license
-      - SPLUNK_PASSWORD=changeme123
-    ports:
-         - "8000:8000"   # Web UI
-         - "8088:8088"   # HEC
-         - "8089:8089"   # Management API
-         - "9997:9997"   # TCP input
-    volumes:
-      - ${SPLUNK_PERSISTENCE}/var:/opt/splunk/var
-      - ${SPLUNK_PERSISTENCE}/etc:/opt/splunk/etc
-    restart: unless-stopped
-    networks:
-      demo-network:
-        ipv4_address: ${SPLUNK_IP}
-
-  otel-collector:
-    image: otel/opentelemetry-collector:latest
-    #image: otel/opentelemetry-collector-contrib:latest
-    command: [ "--config=/etc/otelcol/config.yaml" ]
-    ports:
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
-      # (optional) expose internal zpages for debugging
-      - "55679:55679"
-    container_name: otel-collector
-#    environment:
-#      # Optional: pass secrets for exporters via env
-#      SPLUNK_HEC_TOKEN: "${SPLUNK_HEC_TOKEN:-}"
-#      SPLUNK_OBSERVABILITY_ACCESS_TOKEN: "${SPLUNK_OBSERVABILITY_ACCESS_TOKEN:-}"
-#      SPLUNK_REALM: "${SPLUNK_REALM:-eu0}"
-#      SPLUNK_HEC_ENDPOINT: "${SPLUNK_HEC_ENDPOINT:-https://splunk.example.com:8088/services/collector}"
-    volumes:
-      - ./resources/otel/otel-collector-config.yaml:/etc/otelcol/config.yaml:ro
-    healthcheck:
-      test: [ "CMD", "otelcol", "--version" ]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-    restart: unless-stopped
-    networks:
-      demo-network:
-        ipv4_address: ${OTEL_IP}
-
-  jaeger:
-    image: jaegertracing/all-in-one:latest #v1
-    #image: jaegertracing/jaeger-query:2.0.0 #v2
-    container_name: jaeger
-    # Exposed ports:
-    # 16686 - Jaeger UI
-    # 4317  - OTLP gRPC ingest
-    # 4318  - OTLP HTTP ingest
-    # 14250 - Jaeger gRPC ingest (Thrift over gRPC)
-    # 14268 - Jaeger HTTP ingest (Thrift)
-    # 9411  - Zipkin ingest (optional)
-    ports:
-      - "16686:16686"
-#      - "4417:4317"
-#      - "4418:4318"
-#      - "14250:14250"
-#      - "14268:14268"
-#      - "9411:9411"
-    environment:
-      COLLECTOR_OTLP_ENABLED: "true"
-      COLLECTOR_OTLP_GRPC_HOST_PORT: ":4317"
-      COLLECTOR_OTLP_HTTP_HOST_PORT: ":4318"
-      JAEGER_SAMPLER_TYPE: const         # always sample
-      JAEGER_SAMPLER_PARAM: "1"
-      # Or use a sampling strategies file:
-      # SAMPLING_STRATEGIES_FILE: /etc/jaeger/sampling.json
-    # volumes:
-    #   - ./sampling.json:/etc/jaeger/sampling.json:ro
-    #   - ./data:/badger
-    networks:
-      demo-network:
-        ipv4_address: ${JAEGER_IP}
-
-  inotifywatcher-operations-center:
-    image: devodev/inotify:latest
-    container_name: inotifywatcher-cjoc
-    depends_on:
-      operations-center:
-        condition: service_healthy
-    volumes:
-      - ${OC_PERSISTENCE}:/var/jenkins_home
-    command: >
-      inotifywait -m -r /var/jenkins_home
-      --format '%T %w%f %e'
-      --timefmt '%Y-%m-%d %H:%M:%S'
-      -e create -e modify -e delete -e move
-
-  inotifywatcher-controler:
-    image: devodev/inotify:latest
-    #image: alpine:latest
-    container_name: inotifywatcher-controller
-    depends_on:
-      ha-client-controller-1:
-        condition: service_healthy
-    volumes:
-      - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
-    command: |
-       inotifywait -e modify,create,delete,move --timefmt '%F %T'
-       --format '%T %w%f %e' --exclude '.*.log$' -m -r /var/jenkins_home |
-       while read -r logLine; do
-         tmpLine=$logLine
-         case "$logLine" in
-           *.xml\ MOVED_TO)
-             echo "Detected XML MOVED_TO: $logLine"
-             tmpLine=
-             ;;
-           audit*.log\ MODIFY)
-             echo "Detected AUDIT-LOG Entry: $logLine"
-             ;;
-           #*.xml\ MODIFY)
-           #  echo "Detected XML MODIFY: $logLine"
-           #  ;;
-           #*.xml\ CREATE|*.xml\ DELETE)
-           #  echo "Detected XML CREATE|DELETE: $logLine"
-           #  ;;
-           #*)
-           #  # optionally handle other cases or ignore
-           #  echo "Detected XML OTHER EVENT: $logLine"
-           #  ;;
-         esac
-       done
-
   operations-center:
     image: ${DOCKER_IMAGE_OC}
+    platform: linux/amd64
     extra_hosts:
       - "${OC_URL}:${HAPROXY_IP}"
       - "${CLIENTS_URL}:${HAPROXY_IP}"
+    #privileged: true
+    #user: root
     healthcheck:
       test: curl -k --fail ${HTTP_PROTOCOL}://localhost:${HTTP_PORT}/whoAmI/api/json?tree=authenticated || exit 1
       interval: 3s
       timeout: 3s
-      retries: 50
+      retries: 150
     environment:
       - JAVA_OPTS=${CJOC_JAVA_OPTS}
       - JENKINS_OPTS=${CJOC_JENKINS_OPTS}
       - CJOC_LOGIN_PW=${CJOC_LOGIN_PW}
       - CJOC_LOGIN_USER=${CJOC_LOGIN_USER}
       - OC_URL=${HTTP_PROTOCOL}://${OC_URL}
+      - CJOC_CASC_DEFAULT_BUNDLE=${CJOC_CASC_DEFAULT_BUNDLE}
+      - CONTROLLER_BUNDLE_NAME=${CONTROLLER_BUNDLE_NAME}
+      - CASC_BUNDLE_PATH_CONTAINER=${CASC_BUNDLE_PATH_CONTAINER}
     container_name: operations-center
     volumes:
-    - ${OC_PERSISTENCE}:/var/jenkins_home
-    #{% if ssl == "true" %}
-    - ./ssl/jenkins.jks:/tmp/jenkins.jks
-    - ./ssl/jenkins.p12:/tmp/jenkins.p12
-    - ./ssl/cacerts:/tmp/cacerts
-      # {% endif %}
+      - ${OC_PERSISTENCE}:/var/jenkins_home
+      - ./casc/cjoc:${CASC_BUNDLE_PATH_CONTAINER}/cjoc
+      - ./casc/controller:${CASC_BUNDLE_PATH_CONTAINER}/controller
     networks:
       demo-network:
         ipv4_address: ${OC_IP}
   # Sidecar bunlde-link.yaml init doesent work yet, oc  hostname can not be resolved?
-  init-controllers:
+  init-controller:
     image: curlimages/curl
+    user: "1000:1000"
     extra_hosts:
       - "${OC_URL}:${HAPROXY_IP}"
-    command: ["/bin/sh", "-c", "set -x && curl -v -k -L --user '${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}' -XGET -o /var/jenkins_home/bundle-link.yaml '${HTTP_PROTOCOL}://operations-center:${HTTP_PORT}/config-bundle-download-link?id=ha' && cat /var/jenkins_home/bundle-link.yaml"]
-    container_name: init-controllers
+    command:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        set -x
+        export SECRET_PATH_CJOC_TOKEN="/tmp/${SECRET_FILE_CJOC_TOKEN}"
+        echo "Waiting for Token file $${SECRET_PATH_CJOC_TOKEN} to be generated..."
+        while [ ! -f "$${SECRET_PATH_CJOC_TOKEN}" ]; do
+            sleep 2
+        done
+        TOKEN="$$(cat $${SECRET_PATH_CJOC_TOKEN})"
+        echo "Fetching bundle link..."
+
+        # Download bundle link from operationscenter
+        ## Capture HTTP status code, allow 4xx/5xx to pass curl so we can check code
+        ### Network workaround: we need to download from operationscenter:8080 directly because HAProxy is not up and running yet in this compose stage.
+        ### -s: Silent (no progress), -S: Show error (connection errors), -k: Insecure, -w: Output status code, -L: Follow redirects
+        HTTP_STATUS=$$(curl -sSL -k -w "%{http_code}" \
+            --user "${CJOC_LOGIN_USER}:$${TOKEN}" \
+            -o "${JENKINS_HOME_CONTAINER}/bundle-link.yaml" \
+            "${HTTP_PROTOCOL}://operations-center:${HTTP_PORT}/config-bundle-download-link?id=${CONTROLLER_BUNDLE_NAME}")
+
+        echo "HTTP Status: $$HTTP_STATUS"
+
+        # Check for allowed status codes: 200, 201, 302
+        case "$$HTTP_STATUS" in
+            200|201|302)
+                echo "Success: Bundle link downloaded."
+                # Network workaround: Replacement of https://cjoc.local/zip-bundle/ with http://operations-center:8080/zip-bundle/ required, 
+                # because the external route https://cjoc.local can not be resolved to the IP of haproxy at the time of execution because haproxy is not up an running yet. (see docker-compose dependencies chain)
+                sed -i 's|http.*/zip-bundle/|${HTTP_PROTOCOL}://operations-center:${HTTP_PORT}/zip-bundle/|' ${JENKINS_HOME_CONTAINER}/bundle-link.yaml
+                cat ${JENKINS_HOME_CONTAINER}/bundle-link.yaml
+                ;;
+            *)
+                echo "Error: Failed to fetch bundle link. HTTP Status: $$HTTP_STATUS"
+                if [ -s "${JENKINS_HOME_CONTAINER}/bundle-link.yaml" ]; then
+                    echo "Response content:"
+                    cat "${JENKINS_HOME_CONTAINER}/bundle-link.yaml"
+                fi
+                exit 1
+                ;;
+        esac
+    container_name: init-controller
     healthcheck:
-      test: test -f /var/jenkins_home/bundle-link.yaml
+      test: test -f ${JENKINS_HOME_CONTAINER}/bundle-link.yaml
       interval: 5s
       timeout: 3s
       retries: 5
@@ -185,18 +91,25 @@ services:
       operations-center:
         condition: service_healthy
     volumes:
-      - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
+      - ${CONTROLLER_PERSISTENCE}:${JENKINS_HOME_CONTAINER}
+      # We mount the entire OC_PERSISTENCE directory to /var/oc_home instead of just the single cjoc_token.txt file. 
+      # Mounting a single non-existent file into a directory that is already a volume mount
+      # triggers an OCI runtime mount overlay error on Docker for Mac (virtiofs).
+      - ${OC_PERSISTENCE}/${SECRET_FILE_CJOC_TOKEN}:/tmp/${SECRET_FILE_CJOC_TOKEN}
     networks:
       demo-network:
-        ipv4_address: ${INIT_CLIENT_IP}
+        ipv4_address: ${INIT_CONTROLLER_IP}
 
   ha-client-controller-1:
     image: ${DOCKER_IMAGE_CLIENT_CONTROLLER}
+    platform: linux/amd64
     extra_hosts:
       - "${OC_URL}:${HAPROXY_IP}"
+    #privileged: true
+    # user: root
     healthcheck:
       test: curl -k --fail ${HTTP_PROTOCOL}://localhost:${HTTP_PORT}/whoAmI/api/json?tree=authenticated || exit 1
-      interval: 3s
+      interval: 6s
       timeout: 3s
       retries: 150
     # Required JAVA and JENKINS Options for HA (active/active)
@@ -206,34 +119,31 @@ services:
       - JAVA_OPTS=${CONTROLLER_JAVA_OPTS}
       - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
       - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
-      - JAEGER_URL=${HTTP_PROTOCOL}://${JAEGER_URL}
     depends_on:
-      - operations-center
-      - init-controllers
+      init-controller:
+        condition: service_completed_successfully
+        required: true
     # entrypoint: ["sh", "-c", "while [ ! -f /var/jenkins_home/bundle-link.yaml ]; do echo 'wait for bundle-link.yaml' && sleep 1; done;"]
 
     container_name: ha-client-controller-1
     # Controller 1 is mapping the same underlying dir as controller 2. They share the same jenkins_home
     # Cache dir is different for each
     volumes:
-    - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
-    - ${CONTROLLER1_CACHES}:/var/cache/cloudbees-core-cm
-    #{% if ssl == "true" %}
-    - ./ssl/jenkins.jks:/tmp/jenkins.jks
-    - ./ssl/jenkins.p12:/tmp/jenkins.p12
-    - ./ssl/cacerts:/tmp/cacerts
-   # {% endif %}
+      - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
+      - ${CONTROLLER1_CACHES}:/var/cache/cloudbees-core-cm
     networks:
       demo-network:
-        ipv4_address: ${CLIENT1_IP}
-
+        ipv4_address: ${CONTROLLER1_IP}
   ha-client-controller-2:
     image: ${DOCKER_IMAGE_CLIENT_CONTROLLER}
+    platform: linux/amd64
     extra_hosts:
       - "${OC_URL}:${HAPROXY_IP}"
+    #privileged: true
+    # user: root
     healthcheck:
       test: curl -k --fail  ${HTTP_PROTOCOL}://localhost:${HTTP_PORT}/whoAmI/api/json?tree=authenticated || exit 1
-      interval: 3s
+      interval: 6s
       timeout: 3s
       retries: 150
     # Required JAVA and JENKINS Options for HA (active/active)
@@ -243,85 +153,39 @@ services:
       - JAVA_OPTS=${CONTROLLER_JAVA_OPTS}
       - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
       - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
-      - JAEGER_URL=${HTTP_PROTOCOL}://${JAEGER_URL}
     depends_on:
-      operations-center:
-        condition: service_healthy
       ha-client-controller-1:
         condition: service_healthy
     container_name: ha-client-controller-2
     # Controller 2 is mapping the same underlying dir as controller 1. They share the same jenkins_home
     # Cache dir is different for each
     volumes:
-    - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
-    - ${CONTROLLER2_CACHES}:/var/cache/cloudbees-core-cm
-    #{% if ssl == "true" %}
-    - ./ssl/jenkins.jks:/tmp/jenkins.jks
-    - ./ssl/jenkins.p12:/tmp/jenkins.p12
-    - ./ssl/cacerts:/tmp/cacerts
-    # {% endif %}
+      - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
+      - ${CONTROLLER2_CACHES}:/var/cache/cloudbees-core-cm
     networks:
       demo-network:
-        ipv4_address: ${CLIENT2_IP}
-
-  ha-client-controller-3:
-    image: ${DOCKER_IMAGE_CLIENT_CONTROLLER}
-    extra_hosts:
-      - "${OC_URL}:${HAPROXY_IP}"
-    healthcheck:
-      test: curl -k --fail  ${HTTP_PROTOCOL}://localhost:${HTTP_PORT}/whoAmI/api/json?tree=authenticated || exit 1
-      interval: 3s
-      timeout: 3s
-      retries: 150
-    # Required JAVA and JENKINS Options for HA (active/active)
-    # https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha-install-guide/specific-ha-installation-traditional#_java_options
-    # https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional#_jenkins_args
-    environment:
-      - JAVA_OPTS=${CONTROLLER_JAVA_OPTS}
-      - JENKINS_OPTS=${CONTROLLER_JENKINS_OPTS}
-      - CONTROLLER_URL=${HTTP_PROTOCOL}://${CLIENTS_URL}
-      - JAEGER_URL=${HTTP_PROTOCOL}://${JAEGER_URL}
-    depends_on:
-      operations-center:
-        condition: service_healthy
-      ha-client-controller-1:
-        condition: service_healthy
-    container_name: ha-client-controller-3
-    # Controller 2 is mapping the same underlying dir as controller 1. They share the same jenkins_home
-    # Cache dir is different for each
-    volumes:
-    - ${CONTROLLER_PERSISTENCE}:/var/jenkins_home
-    - ${CONTROLLER2_CACHES}:/var/cache/cloudbees-core-cm
-    #{% if ssl == "true" %}
-    - ./ssl/jenkins.jks:/tmp/jenkins.jks
-    - ./ssl/jenkins.p12:/tmp/jenkins.p12
-    - ./ssl/cacerts:/tmp/cacerts
-    # {% endif %}
-    networks:
-      demo-network:
-        ipv4_address: ${CLIENT3_IP}
-
+        ipv4_address: ${CONTROLLER2_IP}
   agent:
+    #build:
+    #  context: .
+    #  dockerfile: Dockerfile.agent
     image: ${DOCKER_IMAGE_JENKINS_SSH_AGENT}
     privileged: true
     user: root
     container_name: ssh-agent
+    #    expose:
+    #      - 22
     volumes:
-    - ${AGENT_PERSISTENCE}:/home/jenkins/
+      - ${AGENT_PERSISTENCE}:/home/jenkins/
     networks:
       demo-network:
         ipv4_address: ${AGENT_IP}
     environment:
       - JENKINS_AGENT_SSH_PUBKEY=${JENKINS_AGENT_SSH_PUBKEY}
-
-
   haproxy:
     image: ${DOCKER_IMAGE_HAPROXY}
     volumes:
       - ${HA_PROXY_CONFIG}:/usr/local/etc/haproxy/haproxy.cfg
-    #{% if ssl == "true" %}
-      - ./ssl/haproxy.pem:/etc/ssl/certs/haproxy.pem
-    # {% endif %}
     ports:
       - "${HA_PROXY_BIND_PORT}:${HA_PROXY_BIND_PORT}"
     container_name: haproxy
@@ -333,8 +197,6 @@ services:
         condition: service_healthy
     extra_hosts:
       - "${OC_URL}:${OC_IP}"
-      - "${JAEGER_URL}:${JAEGER_IP}"
-
   browser:
     image: ${DOCKER_IMAGE_BROWSER_BOX}
     container_name: webtop
@@ -361,7 +223,6 @@ services:
     networks:
       demo-network:
         ipv4_address: ${BROWSER_IP}
-
 networks:
   demo-network:
     driver: bridge
@@ -369,4 +230,4 @@ networks:
     #  com.docker.network.bridge.host_binding_ipv4: "127.0.0.1"
     ipam:
       config:
-        - subnet: ${IP_PREFIX}.0.0/24
+        - subnet: ${IP_PREFIX}.0.0/16

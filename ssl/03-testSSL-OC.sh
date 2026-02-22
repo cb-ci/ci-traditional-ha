@@ -1,5 +1,10 @@
 #! /bin/bash
 
+#Download war
+VERSION=latest
+if [[ ! -f "cloudbees-core-oc.war" ]]; then
+  curl -O https://jenkins-downloads.cloudbees.com/cloudbees-core/traditional/operations-center/rolling/war/$VERSION/cloudbees-core-oc.war
+fi
 
 export JENKINS_HOME="./jenkins-home-oc"
 export JENKINS_URL=https://oc.ha:8443

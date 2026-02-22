@@ -1,11 +1,13 @@
 #! /bin/bash
 
 #Download war
-VERSION=2.479.2.3
-#curl -O https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/war/2.479.2.3/cloudbees-core-cm.war
+VERSION=latest
+if [[ ! -f "cloudbees-core-cm.war" ]]; then
+  curl -O https://downloads.cloudbees.com/cloudbees-core/traditional/client-master/rolling/war/$VERSION/cloudbees-core-cm.war
+fi
 
 export JENKINS_HOME="./jenkins-home-controller"
-export JENKINS_URL=https://client.ha:8444
+export JENKINS_URL=https://controller.ha:8444
 export KEYSTORE=$(realpath ./jenkins.jks)
 export CACERTS=$(realpath ./cacerts)
 export KS_PW="changeit"

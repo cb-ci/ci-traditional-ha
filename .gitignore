@@ -4,9 +4,8 @@ docker-compose.yaml.rendered
 /secrets/acaternbergcb-wildcard-license.key
 /secrets/acaternbergcb-wildcard-license.cert
 /secrets/applyLicense.sh
-/cb-wildcard-license.cert
-/cb-wildcard-license.key
-/CB-Wildcard-License.md
+license.crt
+license.key
 /test/cookies.txt
 /test/headers
 /ssl/jenkins-home-controller/
@@ -20,6 +19,4 @@ docker-compose.yaml.rendered
 /ssl/jenkins.csr
 /ssl/jenkins.crt
 /README_INTERNALNOTES.md
-/casc/cjoc-hdfc/
-/casc/controller-HDFC/
 /cloudbees_ci_ha_volumes/

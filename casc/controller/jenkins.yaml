@@ -12,10 +12,10 @@ credentials:
               scope: GLOBAL
               username: "jenkins"
 jenkins:
-  #authorizationStrategy: "cloudBeesRoleBasedAccessControl"
-  #authorizationStrategy:
-  #  loggedInUsersCanDoAnything:
-  #    allowAnonymousRead: false
+  authorizationStrategy: "cloudBeesRoleBasedAccessControl"
+  authorizationStrategy:
+   loggedInUsersCanDoAnything:
+     allowAnonymousRead: false
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: true
@@ -59,22 +59,6 @@ highAvailability:
   highAvailabilityQueueThrottler:
     maximumLoad: 0
 unclassified:
-  audit-trail:
-    displayUserName: false
-    logBuildCause: true
-    logCredentialsUsage: true
-    pattern: ".*/(?:configSubmit|doDelete|postBuildResult|enable|disable|cancelQueue|stop|toggleLogKeep|doWipeOutWorkspace|createItem|createView|toggleOffline|cancelQuietDown|quietDown|restart|exit|safeExit)/?.*"
-    loggers:
-      - console:
-          dateFormat: "yyyy-MM-dd HH:mm:ss:SSS"
-          logPrefix: "AUDIT - "
-          output: STD_OUT
-      - logFile:
-          # $class: "hudson.plugins.audit_trail.LogFileAuditLogger"
-          log: "/var/jenkins_home/audit.log"
-          limit: 10240 KB     # Muss gesetzt sein, z. B. 10 MB = 10240 KB
-          count: 5         # Anzahl der Log-Rotationen
-          logSeparator: " - "
   buildDiscarders:
     configuredBuildDiscarders:
       - "jobBuildDiscarder"
@@ -85,18 +69,9 @@ unclassified:
               numToKeepStr: "4"
   headerLabel:
     text: "Managed by CasC"
+  gitHubPluginConfig:
+    hookUrl: "http://controller.ha/github-webhook/"
   location:
     adminAddress: "not configured <nobody@nowhere>"
     url: ${CONTROLLER_URL}
-  openTelemetry:
-    authentication: "noAuthentication"
-    disabledResourceProviders: "io.opentelemetry.instrumentation.resources.ProcessResourceProvider"
-    endpoint: "http://otel-collector:4317"
-    exportOtelConfigurationAsEnvironmentVariables: true
-    ignoredSteps: "dir,echo,isUnix,pwd,properties"
-    observabilityBackends:
-      - jaeger:
-          #jaegerBaseUrl: "http://jaeger:16686/"
-          jaegerBaseUrl: ${JAEGER_URL}
-    serviceName: "controller-ha"
-    serviceNamespace: "controller-ha"
+

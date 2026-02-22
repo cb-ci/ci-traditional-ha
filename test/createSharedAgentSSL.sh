@@ -13,7 +13,10 @@ export SHARED_AGENT_REMOTE_FS="/tmp"
 #  -Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStorePassword=changeit
 #  -Djavax.net.ssl.keyStore=/tmp/jenkins.p12  -Djavax.net.ssl.trustStore=/tmp/cacerts
 
-export VM_ARGS="-Djavax.net.ssl.keyStorePassword=changeit -Djavax.net.ssl.trustStorePassword=changeit -Djavax.net.ssl.keyStore=/tmp/jenkins.p12  -Djavax.net.ssl.trustStore=/tmp/cacerts"
+export VM_ARGS="-Djavax.net.ssl.keyStorePassword=changeit 
+  -Djavax.net.ssl.trustStorePassword=changeit 
+  -Djavax.net.ssl.keyStore=/tmp/jenkins.p12 
+   -Djavax.net.ssl.trustStore=/tmp/cacerts"
 
 echo "------------------  RENDER SHARED_AGENT ITEM YAML ------------------"
 #see https://docs.cloudbees.com/docs/cloudbees-ci/latest/casc-oc/items#_example_items_yaml_file

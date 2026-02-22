@@ -1,47 +1,55 @@
 jenkins:
-  #authorizationStrategy: "cloudBeesRoleBasedAccessControl"
+  authorizationStrategy: "cloudBeesRoleBasedAccessControl"
   crumbIssuer:
     standard:
       excludeClientIPFromCrumb: true
   numExecutors: 1
-#  securityRealm:
-#    local:
-#      allowsSignup: false
-#      enableCaptcha: false
-#      users:
-#      - id: "admin"
-#        password: ${CJOC_LOGIN_PW}
-#        name: ${CJOC_LOGIN_USER}
-#        properties:
-#        - "consoleUrlProvider"
-#        - "blueSteelRedirectOptOutProperty"
-#        - "myView"
-#        - preferredProvider:
-#            providerId: "default"
-#        - "timezone"
-#        - "experimentalFlags"
-#        - "apiToken"
-#        - mailer:
-#            emailAddress: "user@example.com"
-#        - "apiToken"
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+      - id: "admin"
+        password: ${CJOC_LOGIN_PW}
+        name: ${CJOC_LOGIN_USER}
+        properties:
+        - "consoleUrlProvider"
+        - preferredProvider:
+            providerId: "default"
+        - "timezone"
+        - "experimentalFlags"
+        - "apiToken"
+        - mailer:
+            emailAddress: "user@example.com"
+        - "apiToken"
   slaveAgentPort: -1
 cloudBeesCasCServer:
-   defaultBundle: "local/ha"
-   disableRemoteValidation: false
-   visibility: true
-#security:
-#  securitySettingsEnforcement:
-#    global:
-#      realmAndAuthorization:
-#        canCustomMapping: false
-#        canOverride: false
-#        defaultMappingFactory: "restrictedEquivalentRAMF"
-#license:
-#  certificate: |
-#    ${readFile:${JENKINS_HOME}/cb-wildcard-license.cert}
-#  key: |
-#    ${readFile:${JENKINS_HOME}/cb-wildcard-license.key}
+  defaultBundle: local/${CONTROLLER_BUNDLE_NAME}
+  disableRemoteValidation: false
+  visibility: true
+security:
+  securitySettingsEnforcement:
+    global:
+      realmOnly:
+        canCustomMapping: false
+        canOverride: true
+        defaultMappingFactory: "restrictedEquivalentRAMF"
+license:
+  certificate: |
+    ${readFile:${JENKINS_HOME}/license.crt}
+  key: |
+    ${readFile:${JENKINS_HOME}/license.key}
 unclassified:
+  bundleStorageService:
+    activated: true
+    bundles:
+    - name: "local"
+      retriever:
+        localFolderRetriever:
+          localFolder: ${CASC_BUNDLE_PATH_CONTAINER}
+    checkOutTimeout: 600
+    pollingPeriod: 120
+    purgeOnDeactivation: false
   bundleUpdateTiming:
     automaticReload: true
     automaticRestart: true
@@ -49,8 +57,8 @@ unclassified:
     reloadAlwaysOnRestart: false
     skipNewVersions: false
   cascItemsConfiguration:
-    variableInterpolationEnabledForAdmin: false
-    variableInterpolationEnabledForNonAdmin: false
+    variableInterpolationEnabledForAdmin: true
+    variableInterpolationEnabledForNonAdmin: true
   headerLabel:
     text: "Managed by CasC"
   location:
