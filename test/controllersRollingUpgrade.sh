@@ -5,10 +5,12 @@ set -x
 source .env
 # comment/disable when not using ssl
 source .env-ssl
+# NOTE: Preconditon for the test:
+# Controller running in version latest -1 and CJOC running in version latest
 
-export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=2.516.2.28991-jdk21
+export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=latest
 # Enable line below to upgrade Controller to the same version as CJOC
-#export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=${DOCKER_IMAGE_CLOUDBEES_CJOC_TAG}
+export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=${DOCKER_IMAGE_CLOUDBEES_CJOC_TAG}
 
 export DOCKER_IMAGE_CLIENT_CONTROLLER=cloudbees/cloudbees-core-cm:${DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG}
 

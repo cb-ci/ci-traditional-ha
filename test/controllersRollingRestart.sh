@@ -10,11 +10,6 @@ export logLine="cb-ci"
 
 for controller in $(docker compose config --services |grep "ha-client*"); do
   echo "Processing $controller"
-
-  if [ -f "$VERSION_TXT_PATH" ]
-  then
-    rm -v $VERSION_TXT_PATH
-  fi
   docker compose -f docker-compose.yaml restart  "$controller"
 
   # Retry until HTTP 200 from inside the operations-center container
