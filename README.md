@@ -182,7 +182,7 @@ docker-compose restart ha-client-controller-2
 # Testing High Availability
 
 1. Ensure both controllers are running and verify their status via the HA monitor screen.
-2. Trigger the [`SSH Test Pipeline`](http://controller.ha/job/testpipeline/) on the controller (pre-created already by [controller casc items](casc/controller/items.yaml)).
+2. Trigger the SSH Agent Pipeline [`http://controller.ha/job/testpipeline/`](http://controller.ha/job/testpipeline/) on the controller (pre-created already by [controller casc items](casc/controller/items.yaml)).
 3. Identify which replica is actively running your session (enable HA developer mode to see the info icon at the bottom of the UI).
 4. Shut down the active replica: `docker-compose stop ha-client-controller-1` (or `2`, validate before which is your active session).
 5. Reload your browser; the operation should seamlessly failover to the healthy replica, and the pipeline will continue execution.
