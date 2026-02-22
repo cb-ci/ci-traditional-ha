@@ -2,10 +2,9 @@
 #set -euo pipefail
 set -x
 
-source ./env.sh
-
+source .env
 # comment/disable when not using ssl
-source ./env-ssl.sh
+source .env-ssl
 
 export DOCKER_IMAGE_CLOUDBEES_CONTROLLER_TAG=2.516.2.28991-jdk21
 # Enable line below to upgrade Controller to the same version as CJOC

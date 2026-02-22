@@ -2,8 +2,9 @@
 #set -euo pipefail
 set -x
 
-source ./env.sh
-source ./env-ssl.sh
+source .env
+# comment/disable when not using ssl
+source .env-ssl
 
 export logLine="cb-ci"
 

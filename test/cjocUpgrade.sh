@@ -2,10 +2,9 @@
 #set -euo pipefail
 set -x
 
-source ./env.sh
-
+source .env
 # comment/disable when not using ssl
-source ./env-ssl.sh
+source .env-ssl
 
 export DOCKER_IMAGE_CLOUDBEES_CJOC_TAG=2.516.2.29000-jdk21
 export DOCKER_IMAGE_OC=cloudbees/cloudbees-core-oc:${DOCKER_IMAGE_CLOUDBEES_CJOC_TAG}
