@@ -109,7 +109,7 @@ sequenceDiagram
 
 The lab features the following containers:
 
-* **HAProxy Load Balancer:** Routes traffic to CJOC and Controllers. Uses `$OC_URL` host header for Operations Center requests and `$CLIENTS_URL` for controller requests (with sticky session balancing).
+* **HAProxy Load Balancer:** Routes traffic to CJOC and Controllers. Uses `$OC_URL` host header for Operations Center requests and `$CONTROLLER_URL` for controller requests (with sticky session balancing).
 * **Operations Center (CJOC):** Central CloudBees CI management component.
 * **Controllers (2x):** Run in HA/HS (Active/Active) mode. (HS is not realy part of the lab)
 * **SSH-Agent (1x):** Agent container for running pipeline builds.
@@ -154,7 +154,7 @@ You will find a controller running in HA mode with a pre-configured SSH agent an
 
 ## Configuration & Tooling
 
-* **`.env` and `.env-ssl`:** Contains essential variables (`OC_URL`, `CLIENTS_URL`, image versions, HA parameters). Standard use cases do not require modification.
+* **`.env` and `.env-ssl`:** Contains essential variables (`OC_URL`, `CONTROLLER_URL`, image versions, HA parameters). Standard use cases do not require modification.
 * **`docker-compose.yaml.template`:** Template used by `up.sh` to render the final `docker-compose.yaml`. **Do not modify `docker-compose.yaml` directly.**
 * **`up.sh` / `down.sh`:** Primary utility scripts for lab lifecycle management.
 * **`cleanUp.sh`:** Hard reset script to drop persistence volumes.
@@ -230,7 +230,7 @@ To show only headers using a GET request (with no body):
 
 ```
 source ./env.sh
-curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -s -D - ${CLIENTS_URL} -o /dev/null
+curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -s -D - ${CONTROLLER_URL} -o /dev/null
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -s -D - ${CJOC_URL} -o /dev/null
 ```
 
@@ -239,7 +239,7 @@ Use the -v (verbose) option or -i (include headers in the output):
 
 ```
 source ./env.sh
-curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -i -v  ${CLIENTS_URL} -o /dev/null
+curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -i -v  ${CONTROLLER_URL} -o /dev/null
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -i -v  ${CJOC_URL} -o /dev/null
 ```
 
@@ -247,7 +247,7 @@ Send custom host header
 
 ```
 source ./env.sh
-curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}  -v -H "Host: custom.example.com" ${CLIENTS_URL} -o /dev/null
+curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}  -v -H "Host: custom.example.com" ${CONTROLLER_URL} -o /dev/null
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}  -v -H "Host: custom.example.com" ${CJOC_URL} -o /dev/null
 ```
 
