@@ -145,11 +145,11 @@ You will find a controller running in HA mode with a pre-configured SSH agent an
 
 | Action | Command | Description |
 |--------|---------|-------------|
-| **Start Environment** | `./up.sh` (or `./up.sh ssl=true`) | Initializes volumes, config, and starts containers. |
-| **Stop Environment** | `./down.sh` | Safely stops all containers. |
-| **Rolling Restart Controllers** | `./test/controllersRollingRestart.sh` | Performs a rolling restart of the HA controllers. |
-| **Rolling Upgrade Controllers** | `./test/controllersRollingUpgrade.sh` | Performs a rolling upgrade of the HA controllers. |
-| **Clean Up** | `./cleanUp.sh` | Deletes the docker persistence directories on the host. |
+| **Start Environment** | [`./up.sh`](up.sh) (or [`./up.sh ssl=true`](up.sh)) | Initializes volumes, config, and starts containers. |
+| **Stop Environment** | [`./down.sh`](down.sh) | Safely stops all containers. |
+| **Rolling Restart Controllers** | [`./test/controllersRollingRestart.sh`](test/controllersRollingRestart.sh) | Performs a rolling restart of the HA controllers. |
+| **Rolling Upgrade Controllers** | [`./test/controllersRollingUpgrade.sh`](test/controllersRollingUpgrade.sh) | Performs a rolling upgrade of the HA controllers. |
+| **Clean Up** | [`./cleanUp.sh`](cleanUp.sh) | Deletes the docker persistence directories on the host. |
 
 ## Restart container
 
@@ -168,22 +168,22 @@ docker-compose restart ha-client-controller-2
 
 ## Configuration & Tooling
 
-* **`.env` and `.env-ssl`:** Contains essential variables (`OC_URL`, `CONTROLLER_URL`, image versions, HA parameters). Standard use cases do not require modification.
-* **`docker-compose.yaml.template`:** Template used by `up.sh` to render the final `docker-compose.yaml`. **Do not modify `docker-compose.yaml` directly.**
-* **`up.sh` / `down.sh`:** Primary utility scripts for lab lifecycle management.
-* **`cleanUp.sh`:** Hard reset script to drop persistence volumes.
-* **`ssl/01-createSelfSigned.sh`:** Generates keys and certificates required for HTTPS mode.
+* **[`.env`](.env) and [`.env-ssl`](.env-ssl):** Contains essential variables (`OC_URL`, `CONTROLLER_URL`, image versions, HA parameters). Standard use cases do not require modification.
+* **[`docker-compose.yaml.template`](docker-compose.yaml.template):** Template used by `up.sh` to render the final `docker-compose.yaml`. **Do not modify `docker-compose.yaml` directly.**
+* **[`up.sh`](up.sh) / [`down.sh`](down.sh):** Primary utility scripts for lab lifecycle management.
+* **[`cleanUp.sh`](cleanUp.sh):** Hard reset script to drop persistence volumes.
+* **[`ssl/01-createSelfSigned.sh`](ssl/01-createSelfSigned.sh):** Generates keys and certificates required for HTTPS mode.
 * **`secrets/`:** Auto-generated directory containing SSH keys injected into Controllers by CasC.
 * **`test/`:** Contains test scripts and utilities. (Need to be updated/validated)
 
 ## Reverse Proxy with Load Balancing Capabilities
 
-* **`haproxy.cfg` / `haproxy-ssl.cfg`:** HAProxy configurations defining frontends, backends, health checks, sticky sessions, and websockets.
+* **[`haproxy.cfg`](haproxy.cfg) / [`haproxy-ssl.cfg`](haproxy-ssl.cfg):** HAProxy configurations defining frontends, backends, health checks, sticky sessions, and websockets.
 
 ## Configuration as Code (CasC)
 
-* **`casc/cjoc/`:** Bundles used to provision the Operations Center on startup.
-* **`casc/controller/`:** Bundles to configure the HA controllers (includes HA plugin settings, SSH credentials, agent configs, and standard test jobs).
+* **[`casc/cjoc/`](casc/cjoc/):** Bundles used to provision the Operations Center on startup.
+* **[`casc/controller/`](casc/controller/):** Bundles to configure the HA controllers (includes HA plugin settings, SSH credentials, agent configs, and standard test jobs).
 
 # Testing High Availability
 
