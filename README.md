@@ -132,11 +132,11 @@ sequenceDiagram
    * HTTP Mode: `./up.sh`
    * HTTPS Mode: `./up.sh ssl=true`
 
-   *This script scaffolds local volumes, generates SSH keys, renders the Compose file via `envsubst`, and starts all containers. Configuration as Code (CasC) provisions the initial setup.*
+   *This script scaffolds local volumes, generates SSH keys, creates a self-signed SSL certificate (if using HTTPS), renders the Compose file via `envsubst`, and starts all containers. Configuration as Code (CasC) provisions the initial setup.*
 3. **Access the Lab:**
    Wait for components to initialize, then choose an access method:
    * **Option A (Browser in a Box):** Navigate to [http://localhost:3000](http://localhost:3000) and launch a Browser. No host configuration required.
-   * **Option B (Local Browser):** Add `127.0.0.1 localhost oc.ha controller.ha` to your `/etc/hosts` file and open [http://oc.ha](http://oc.ha).
+   * **Option B (Local Browser):** Add `127.0.0.1 localhost oc.ha controller.ha` to your `/etc/hosts` file and open [http://oc.ha](http://oc.ha) or [https://oc.ha](https://oc.ha) depending on the mode.
 4. **Log In:** Use `admin / admin` to log into the Operations Center.
 
 You will find a controller running in HA mode with a pre-configured SSH agent and a test pipeline job ready to execute.
@@ -235,7 +235,8 @@ If the active/active nodes fail to pair:
 To show only headers using a GET request (with no body):
 
 ```
-source ./env.sh
+source .env
+source .env.ssl # if using ssl
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -s -D - ${CONTROLLER_URL} -o /dev/null
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -s -D - ${CJOC_URL} -o /dev/null
 ```
@@ -244,7 +245,8 @@ To get both the headers and body of the response:
 Use the -v (verbose) option or -i (include headers in the output):
 
 ```
-source ./env.sh
+source .env
+source .env.ssl # if using ssl
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -i -v  ${CONTROLLER_URL} -o /dev/null
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -i -v  ${CJOC_URL} -o /dev/null
 ```
@@ -252,7 +254,8 @@ curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW} -i -v  ${CJOC_URL} -o /dev/null
 Send custom host header
 
 ```
-source ./env.sh
+source .env
+source .env.ssl # if using ssl
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}  -v -H "Host: custom.example.com" ${CONTROLLER_URL} -o /dev/null
 curl -u ${CJOC_LOGIN_USER}:${CJOC_LOGIN_PW}  -v -H "Host: custom.example.com" ${CJOC_URL} -o /dev/null
 ```
@@ -264,19 +267,6 @@ docker network ls
 docker network inspect traditional-ha_demo-network
 ```
 
-## Restart container
-
-```
-docker-compose restart <container>
-```
-
-Example:
-
-```
-docker-compose restart ha-client-controller-1
-docker-compose restart ha-client-controller-2
-```
-
 ## List docker processes
 
 ```
@@ -284,6 +274,8 @@ docker-compose top
 ```
 
 # Resources
+
+See links below for further details
 
 ## CloudBees CI High Availability
 
