@@ -19,12 +19,8 @@ items:
                  */
                 label "ssh-agent"
             }
-            /*triggers {
-                cron '* * * * *'
-            }*/
-
             stages {
-                stage('Stage1') {
+                stage('hostname') {
                     steps {
                         script {
                             //Print Controller hostname to console, requires script approval!
@@ -45,9 +41,9 @@ items:
   description: ''
   disabled: false
   displayName: testpipeline
-  properties:
-  - pipelineTriggers:
-      triggers:
-      - cron:
-          spec: '* * * * *'
+#   properties:
+#   - pipelineTriggers:
+#       triggers:
+#       - cron:
+#           spec: '* * * * *'
   resumeBlocked: false
