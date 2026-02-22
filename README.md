@@ -166,23 +166,15 @@ docker-compose restart ha-client-controller-2
 
 # File Reference
 
-## Configuration & Tooling
-
 * **[`.env`](.env) and [`.env-ssl`](.env-ssl):** Contains essential variables (`OC_URL`, `CONTROLLER_URL`, image versions, HA parameters). Standard use cases do not require modification.
 * **[`docker-compose.yaml`](docker-compose.yaml):** docker-compose configuration.
-* **[`docker-compose-ssl.yaml`](docker-compose-ssl.yaml):** docker-compose overlay configuration for HTTPS mode.
+* **[`docker-compose.ssl.yaml`](docker-compose.ssl.yaml):** docker-compose overlay configuration for HTTPS mode.
 * **[`up.sh`](up.sh) / [`down.sh`](down.sh):** Primary utility scripts for lab lifecycle management.
 * **[`cleanUp.sh`](cleanUp.sh):** Hard reset script to drop persistence volumes.
 * **[`ssl/01-createSelfSigned.sh`](ssl/01-createSelfSigned.sh):** Generates keys and certificates required for HTTPS mode.
 * **`secrets/`:** Auto-generated directory containing SSH keys injected into Controllers by CasC.
 * **`test/`:** Contains test scripts and utilities. (Need to be updated/validated)
-
-## Reverse Proxy with Load Balancing Capabilities
-
 * **[`haproxy.cfg`](haproxy.cfg) / [`haproxy-ssl.cfg`](haproxy-ssl.cfg):** HAProxy configurations defining frontends, backends, health checks, sticky sessions, and websockets.
-
-## Configuration as Code (CasC)
-
 * **[`casc/cjoc/`](casc/cjoc/):** Bundles used to provision the Operations Center on startup.
 * **[`casc/controller/`](casc/controller/):** Bundles to configure the HA controllers (includes HA plugin settings, SSH credentials, agent configs, and standard test jobs).
 
