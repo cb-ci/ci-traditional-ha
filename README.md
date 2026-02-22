@@ -191,6 +191,8 @@ See also [test/README.md](test/README.md) for more information.
 
 # Troubleshooting
 
+See also [CloudBees HA/HS troubleshooting](https://docs.cloudbees.com/docs/cloudbees-ci/latest/troubleshooting/install-ha-active-active#_troubleshoot_cloudbees_ci_on_traditional_platforms_installations)
+
 ## SSL Certificate Warnings
 
 Because the demo uses self-signed certificates or runs without SSL locally, browsers may show security warnings.
@@ -223,10 +225,6 @@ If the active/active nodes fail to pair:
 2. Verify port connectivity between replicas: `nc -vz <CONTROLLER_IP> 5701`.
 3. Confirm configured IPs for `-Dhudson.TcpSlaveAgentListener.hostName`.
 4. Enable Hazelcast debug logging: add `-Dhazelcast.diagnostics.enabled=true` to JVM options and configure a custom logger for `com.cloudbees.jenkins.plugins.replication.hazelcast.FilesystemDiscoveryStrategy`.
-
-## Disable "HTTPS Only" mode
-
-* <https://docs.cloudbees.com/docs/cloudbees-ci/latest/troubleshooting/install-ha-active-active#_troubleshoot_cloudbees_ci_on_traditional_platforms_installations>
 
 ## Reconnect Controllers to CJOC
 
