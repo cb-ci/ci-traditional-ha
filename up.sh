@@ -74,16 +74,16 @@ create_volume_dirs() {
   # Inject SSL certificates for HAProxy
   if [[ "$SSL" == "true" ]]; then
     log "Preparing SSL volumes"
-    mkdir -p ${HA_PERSISTENCE}/etc/ssl/certs
+    mkdir -p ${HA_PROXY_PERSISTENCE}/etc/ssl/certs
     if [[ -f "ssl/haproxy.pem" ]]; then
-        cp -v ssl/haproxy.pem ${HA_PERSISTENCE}/etc/ssl/certs/haproxy.pem
+        cp -v ssl/haproxy.pem ${HA_PROXY_PERSISTENCE}/etc/ssl/certs/haproxy.pem
     fi
   fi
   
   log "Ensure proper permissions"
   find "$PERSISTENCE_PREFIX" -type d -exec chmod 700 {} +
-  find "$HA_PERSISTENCE" -type d -exec chmod 700 {} +
-  
+  find "$HA_PROXY_PERSISTENCE" -type d -exec chmod 700 {} +
+
   # workaround to avoid https://github.com/testcontainers/testcontainers-java/issues/11222
   mkdir -p "${OC_PERSISTENCE}"
   cp -f ./license.crt "${OC_PERSISTENCE}/license.crt"

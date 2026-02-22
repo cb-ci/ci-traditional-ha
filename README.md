@@ -2,11 +2,7 @@
 
 A complete Docker Compose environment demonstrating a [CloudBees CI Traditional Installation](https://docs.cloudbees.com/docs/cloudbees-ci/latest/traditional-install-guide/) running in [High Availability (Active/Active) mode](https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-fundamentals).
 
-For more background on CloudBees CI High Availability, review the following resources:
-
-* [HA Fundamentals](https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-fundamentals)
-* [HA Considerations](https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-considerations)
-* [Traditional HA Installation Guide](https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional)
+For more background on CloudBees CI High Availability, refer to the [Resources](#resources) section at the bottom of this document.
 
 # Architecture
 
@@ -150,8 +146,8 @@ You will find a controller running in HA mode with a pre-configured SSH agent an
 |--------|---------|-------------|
 | **Start Environment** | `./up.sh` (or `./up.sh ssl=true`) | Initializes volumes, config, and starts containers. |
 | **Stop Environment** | `./down.sh` | Safely stops all containers. |
-| **Rolling Restart Controllers** | `./test/controllerRollingRestart.sh` | Performs a rolling restart of the HA controllers. |
-| **Rolling Upgrade Controllers** | `./test/controllerRollingUpgrade.sh` | Performs a rolling upgrade of the HA controllers. |
+| **Rolling Restart Controllers** | `./test/controllersRollingRestart.sh` | Performs a rolling restart of the HA controllers. |
+| **Rolling Upgrade Controllers** | `./test/controllersRollingUpgrade.sh` | Performs a rolling upgrade of the HA controllers. |
 | **Clean Up** | `./cleanUp.sh` | Deletes the docker persistence directories on the host. |
 
 # File Reference
@@ -283,27 +279,29 @@ docker-compose top
 
 # Resources
 
-* [CloudBees CI Traditional HA Documentation](https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional)
+## CloudBees CI High Availability
+
+* [Traditional HA Installation Guide](https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional)
+* [HA Fundamentals](https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-fundamentals)
+* [HA Considerations](https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-considerations)
 * [HA Performance Bottlenecks & Tuning](https://www.cloudbees.com/blog/analyzing-cloudbees-ci-high-availability-performance-bottlenecks-and)
+
+## HAProxy & Networking
+
 * [HAProxy Websocket Load Balancing Configuration](https://www.haproxy.com/documentation/haproxy-configuration-tutorials/load-balancing/websocket/#configure-websockets)
+* [HAProxy Core Concepts - Backends](https://www.haproxy.com/documentation/haproxy-configuration-tutorials/core-concepts/backends/)
+* [HAProxy Configuration Basics - Load Balance Your Servers](https://www.haproxy.com/blog/haproxy-configuration-basics-load-balance-your-servers)
+* [HAProxy Configuration Manual](https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/)
+* [Using SSL Certificates with HAProxy (PDF)](ssl/1_Using_SSL_Certificates_with_HAProxy.pdf)
+* [Docker Compose Networking](https://docs.docker.com/compose/networking/)
+* [How to use Docker host IP address inside an application container](https://www.claudiokuenzler.com/blog/900/how-to-use-docker-host-ip-address-inside-application-container)
+* [Using Docker for testing](https://eventuate.io/docs/usingdocker.html)
+
+## Other tools
+
 * [LinuxServer.io Webtop Container Documentation](https://docs.linuxserver.io/images/docker-webtop/#lossless-mode)
-
-References we have used for the development of this demo environment:
-
-* <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/specific-ha-installation-traditional>
-* <https://docs.cloudbees.com/docs/cloudbees-ci/latest/ha/ha-considerations>
-* <https://www.cloudbees.com/blog/analyzing-cloudbees-ci-high-availability-performance-bottlenecks-and>
-* [docs/HAProxy/1_Using_SSL_Certificates_with_HAProxy.pdf](ssl/1_Using_SSL_Certificates_with_HAProxy.pdf)
-* <https://www.haproxy.com/blog/haproxy-configuration-basics-load-balance-your-servers>
-* <https://www.haproxy.com/documentation/haproxy-configuration-manual/latest/>
-* <https://www.haproxy.com/documentation/haproxy-configuration-tutorials/load-balancing/websocket/#configure-websockets>
-* <https://www.haproxy.com/documentation/haproxy-configuration-tutorials/core-concepts/backends/>
-* <https://docs.docker.com/compose/networking/>
-* <https://www.claudiokuenzler.com/blog/900/how-to-use-docker-host-ip-address-inside-application-container>
-* <https://eventuate.io/docs/usingdocker.html>
-* <https://docs.linuxserver.io/images/docker-webtop/#lossless-mode>
-* <https://daniel.haxx.se/blog/2022/03/24/easier-header-picking-with-curl>
-* <https://www.tonmann.com/2017/11/12/running-jenkins-with-ssl-on-default-https-port/>
+* [Easier header picking with curl](https://daniel.haxx.se/blog/2022/03/24/easier-header-picking-with-curl)
+* [Running Jenkins with SSL on default HTTPS port](https://www.tonmann.com/2017/11/12/running-jenkins-with-ssl-on-default-https-port/)
 
 ## Roadmap / TODO
 
