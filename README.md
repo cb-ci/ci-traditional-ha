@@ -39,6 +39,27 @@ This demonstration orchestrates CloudBees components and an HAProxy load balance
 
 ```mermaid
 graph TD
+    %% Legend Subgraph
+    subgraph Legend
+        L1[External/Web Traffic] --- L2[Storage & Sync] --- L3[SSH Connections] --- L4[Management/Control] --- L5[ ]
+    end
+    %% Apply Styles to Legend Lines
+    linkStyle 0 stroke:#2ecc71,stroke-width:4px;
+    linkStyle 1 stroke:#3498db,stroke-width:4px;
+    linkStyle 2 stroke:#e67e22,stroke-width:4px;
+    linkStyle 3 stroke:#9b59b6,stroke-width:4px,stroke-dasharray: 5 5;
+    
+    %% Make Legend nodes look like simple labels
+    style Legend fill:#f9f9f9,stroke:#333,stroke-width:1px
+    style L1 fill:none,stroke:none
+    style L2 fill:none,stroke:none
+    style L3 fill:none,stroke:none
+    style L4 fill:none,stroke:none
+    style L5 fill:none,stroke:none
+```
+
+```mermaid
+graph TD
     Client(User / Browser) -->|HTTP 80 / 8080| HAProxy[HAProxy]
     
     HAProxy -->|Host: oc.ha<br>Port: 8080| CJOC[Operations Center]
@@ -65,23 +86,26 @@ graph TD
     CJOC -.->|Manage| Controller1
     CJOC -.->|Manage| Controller2
 
-
-    %% Legend Subgraph
-    subgraph Legend
-        L1[External/Web Traffic] --- L2[Storage & Sync] --- L3[SSH Connections] --- L4[Management/Control] --- L5[ ]
-    end
-
     %% Apply Styles to Diagram
     linkStyle 0,1,2,3 stroke:#2ecc71,stroke-width:2px;          
     linkStyle 4,5,6,7,8,9 stroke:#3498db,stroke-width:2px;    
     linkStyle 10,11 stroke:#e67e22,stroke-width:2px;          
     linkStyle 12,13 stroke:#9b59b6,stroke-width:2px,stroke-dasharray: 5 5;
+```
 
+## HTTPS Mode (Port 443 / 8443)
+
+```mermaid
+graph TD
+    %% Legend Subgraph
+    subgraph Legend
+        L1[External/Web Traffic] --- L2[Storage & Sync] --- L3[SSH Connections] --- L4[Management/Control] --- L5[ ]
+    end
     %% Apply Styles to Legend Lines
-    linkStyle 14 stroke:#2ecc71,stroke-width:4px;
-    linkStyle 15 stroke:#3498db,stroke-width:4px;
-    linkStyle 16 stroke:#e67e22,stroke-width:4px;
-    linkStyle 17 stroke:#9b59b6,stroke-width:4px,stroke-dasharray: 5 5;
+    linkStyle 0 stroke:#2ecc71,stroke-width:4px;
+    linkStyle 1 stroke:#3498db,stroke-width:4px;
+    linkStyle 2 stroke:#e67e22,stroke-width:4px;
+    linkStyle 3 stroke:#9b59b6,stroke-width:4px,stroke-dasharray: 5 5;
     
     %% Make Legend nodes look like simple labels
     style Legend fill:#f9f9f9,stroke:#333,stroke-width:1px
@@ -91,8 +115,6 @@ graph TD
     style L4 fill:none,stroke:none
     style L5 fill:none,stroke:none
 ```
-
-## HTTPS Mode (Port 443 / 8443)
 
 ```mermaid
 graph TD
@@ -121,30 +143,12 @@ graph TD
     CJOC -.->|Manage| Controller1
     CJOC -.->|Manage| Controller2
 
-    %% Legend Subgraph
-    subgraph Legend
-        L1[External/Web Traffic] --- L2[Storage & Sync] --- L3[SSH Connections] --- L4[Management/Control] --- L5[ ]
-    end
-
     %% Apply Styles to Diagram
     linkStyle 0,1,2,3 stroke:#2ecc71,stroke-width:2px;          
     linkStyle 4,5,6,7,8,9 stroke:#3498db,stroke-width:2px;    
     linkStyle 10,11 stroke:#e67e22,stroke-width:2px;          
     linkStyle 12,13 stroke:#9b59b6,stroke-width:2px,stroke-dasharray: 5 5;
 
-    %% Apply Styles to Legend Lines
-    linkStyle 14 stroke:#2ecc71,stroke-width:4px;
-    linkStyle 15 stroke:#3498db,stroke-width:4px;
-    linkStyle 16 stroke:#e67e22,stroke-width:4px;
-    linkStyle 17 stroke:#9b59b6,stroke-width:4px,stroke-dasharray: 5 5;
-    
-    %% Make Legend nodes look like simple labels
-    style Legend fill:#f9f9f9,stroke:#333,stroke-width:1px
-    style L1 fill:none,stroke:none
-    style L2 fill:none,stroke:none
-    style L3 fill:none,stroke:none
-    style L4 fill:none,stroke:none
-    style L5 fill:none,stroke:none
 ```
 
 ## Request Flow
