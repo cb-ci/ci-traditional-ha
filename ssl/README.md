@@ -24,13 +24,13 @@ This guide walks you through:
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
 | [00-downloadWar.sh](00-downloadWar.sh)           | Downloads CloudBees Jenkins WAR files for Controller and Operations Center                                                                  |
 | [01-createSelfSigned.sh](01-createSelfSigned.sh) | Creates a self-signed certificate (password: `changeit`) producing PEM for HAProxy and Java keystores (`jenkins.jks` and patched `cacerts`) |
-| [03-start-CM.sh](03-start-CM.sh)                 | Starts CloudBees Controller on HTTPS port 443 using the `jenkins.jks` keystore                                                              |
-| [03-start-OC.sh](03-start-OC.sh)                 | Starts CloudBees Operations Center on HTTPS port 443 using the `jenkins.jks` keystore                                                       |
+| [03-testSSL-CM.sh](03-testSSL-CM.sh)             | Starts CloudBees Controller on HTTPS port 443 using the `jenkins.jks` keystore                                                              |
+| [03-testSSL-OC.sh](03-testSSL-OC.sh)             | Starts CloudBees Operations Center on HTTPS port 443 using the `jenkins.jks` keystore                                                       |
 | [cacerts](cacerts)                               | Java default truststore plus self-signed cert added (used for outbound traffic SSL verification)                                            |
 | [jenkins.jks](jenkins.jks)                       | Java keystore with only the self-signed certificate (used by Jenkins for inbound HTTPS connections)                                         |
 | [jenkins.pem](jenkins.pem)                       | PEM format certificate and private key for HAProxy frontend SSL                                                                             |
 
-*Note:* The self-signed certificate includes SAN DNS entries (see `../env-ssl.sh`).
+*Note:* The self-signed certificate includes SAN DNS entries (see `.env-ssl`).
 
 ---
 
@@ -41,9 +41,8 @@ This guide walks you through:
 * [Jenkins Initial HTTP/HTTPS Settings](https://www.jenkins.io/doc/book/installing/initial-settings/#configuring-http)
 * [SSL Certificates with HAProxy PDF](1_Using_SSL_Certificates_with_HAProxy.pdf)
 * [Overview of Java Keystore Types](https://www.pixelstech.net/article/1408345768-Different-types-of-keystore-in-Java----Overview)
-* https://www.jenkins.io/doc/book/system-administration/reverse-proxy-configuration-troubleshooting/
-* https://www.jenkins.io/doc/book/system-administration/reverse-proxy-configuration-with-jenkins/
-
+* <https://www.jenkins.io/doc/book/system-administration/reverse-proxy-configuration-troubleshooting/>
+* <https://www.jenkins.io/doc/book/system-administration/reverse-proxy-configuration-with-jenkins/>
 
 ---
 
@@ -133,27 +132,27 @@ openssl pkcs12 -export -in jenkins.pem -out jenkins.p12 -name "JenkinsCert"
 
 ## Verification Commands
 
-### Check SAN entries in `cacerts`:
+### Check SAN entries in `cacerts`
 
 ```bash
 keytool -exportcert -keystore cacerts -storepass changeit -alias jenkins -rfc -file cacerts.pem
 openssl x509 -in cacerts.pem -text -noout | grep -A 1 "Subject Alternative Name"
 ```
 
-### Check SAN entries in `jenkins.jks`:
+### Check SAN entries in `jenkins.jks`
 
 ```bash
 keytool -exportcert -keystore jenkins.jks -storepass changeit -alias jenkins -file jkscert.pem -rfc
 openssl x509 -in jkscert.pem -text -noout | grep -A 1 "Subject Alternative Name"
 ```
 
-### Verify certificate chain:
+### Verify certificate chain
 
 ```bash
 openssl verify -CAfile ca.pem jkscert.pem
 ```
 
-### Download and verify LB certificate SAN:
+### Download and verify LB certificate SAN
 
 ```bash
 openssl s_client -showcerts -connect <LB_FQDN>:443 </dev/null | openssl x509 -outform PEM > lbcert.pem
