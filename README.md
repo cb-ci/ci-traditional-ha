@@ -69,8 +69,8 @@ graph TD
         Controller2[Controller Replica 2]
     end
     
-    HAProxy -->|Host: controller.ha<br>Cookie: cloudbees_sticky<br>Port: 8080| Controller1
-    HAProxy -->|Host: controller.ha<br>Cookie: cloudbees_sticky<br>Port: 8080| Controller2
+    HAProxy -->|Host: controller.ha<br>Port: 8080| Controller1
+    HAProxy -->|Host: controller.ha<br>Port: 8080| Controller2
     
     CJOC <-->|JENKINS_HOME| CJOCHome[(CJOC Volume)]
     Controller1 <-->|Shared JENKINS_HOME| JenkinsHome[(Shared Local Volume)]
