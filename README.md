@@ -188,7 +188,7 @@ sequenceDiagram
    * HTTP Mode: `./up.sh`
    * HTTPS Mode: `./up.sh ssl=true`
 
-   *This script scaffolds local volumes, generates SSH keys, creates a self-signed SSL certificate (if using HTTPS), renders the Compose file via `envsubst`, and starts all containers. Configuration as Code (CasC) provisions the initial setup.*
+   *This script scaffolds local volumes, generates SSH keys, creates a self-signed SSL certificate (if using HTTPS), and starts all containers. Configuration as Code (CasC) provisions the initial setup.*
 3. **Access the Lab:**
    Wait for components to initialize, then choose an access method:
    * **Option A (Browser in a Box):** Navigate to [http://localhost:3000](http://localhost:3000) and launch a Browser. No host configuration required.
