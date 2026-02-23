@@ -39,7 +39,7 @@ This demonstration orchestrates CloudBees components and an HAProxy load balance
 
 ```mermaid
 graph TD
-    Client(User / Browser) -->|HTTP 80 / 8080| HAProxy[HAProxy Load Balancer]
+    Client(User / Browser) -->|HTTP 80 / 8080| HAProxy[HAProxy]
     
     HAProxy -->|Host: oc.ha<br>Port: 8080| CJOC[Operations Center]
     
@@ -64,14 +64,39 @@ graph TD
     
     CJOC -.->|Manage| Controller1
     CJOC -.->|Manage| Controller2
+
+
+    %% Legend Subgraph
+    subgraph Legend
+        L1[External/Web Traffic] --- L2[Storage & Sync] --- L3[SSH Connections] --- L4[Management/Control] --- L5[ ]
+    end
+
+    %% Apply Styles to Diagram
+    linkStyle 0,1,2,3 stroke:#2ecc71,stroke-width:2px;          
+    linkStyle 4,5,6,7,8,9 stroke:#3498db,stroke-width:2px;    
+    linkStyle 10,11 stroke:#e67e22,stroke-width:2px;          
+    linkStyle 12,13 stroke:#9b59b6,stroke-width:2px,stroke-dasharray: 5 5;
+
+    %% Apply Styles to Legend Lines
+    linkStyle 14 stroke:#2ecc71,stroke-width:4px;
+    linkStyle 15 stroke:#3498db,stroke-width:4px;
+    linkStyle 16 stroke:#e67e22,stroke-width:4px;
+    linkStyle 17 stroke:#9b59b6,stroke-width:4px,stroke-dasharray: 5 5;
+    
+    %% Make Legend nodes look like simple labels
+    style Legend fill:#f9f9f9,stroke:#333,stroke-width:1px
+    style L1 fill:none,stroke:none
+    style L2 fill:none,stroke:none
+    style L3 fill:none,stroke:none
+    style L4 fill:none,stroke:none
+    style L5 fill:none,stroke:none
 ```
 
 ## HTTPS Mode (Port 443 / 8443)
 
 ```mermaid
 graph TD
-    Client(User / Browser) -->|HTTPS 443 / 8443| HAProxy[HAProxy Load Balancer]
-    
+    Client(User / Browser) -->|HTTPS 443| HAProxy[HAProxy]
     HAProxy -->|Host: oc.ha<br>Port: 8443| CJOC[Operations Center]
     
     subgraph HA_Controllers ["HA Controllers"]
@@ -79,23 +104,47 @@ graph TD
         Controller2[Controller Replica 2]
     end
     
-    HAProxy -->|Host: controller.ha<br>Cookie: cloudbees_sticky<br>Port: 8443| Controller1
-    HAProxy -->|Host: controller.ha<br>Cookie: cloudbees_sticky<br>Port: 8443| Controller2
+    HAProxy -->|Host: controller.ha<br>Port: 8443| Controller1
+    HAProxy -->|Host: controller.ha<br>Port: 8443| Controller2
     
     CJOC <-->|JENKINS_HOME| CJOCHome[(CJOC Volume)]
     Controller1 <-->|Shared JENKINS_HOME| JenkinsHome[(Shared Local Volume)]
     Controller2 <-->|Shared JENKINS_HOME| JenkinsHome
     
     Controller1 <-->|hazelcast 5701| Controller2
-    Controller1 <-->|Independent Cache| Cache1[(Replica 1 Cache)]
-    Controller2 <-->|Independent Cache| Cache2[(Replica 2 Cache)]
+    Controller1 <-->|Cache| Cache1[(Replica 1 Cache)]
+    Controller2 <-->|Cache| Cache2[(Replica 2 Cache)]
     
     Controller1 -->|SSH| SSHAgent[SSH Agent]
     Controller2 -->|SSH| SSHAgent
     
-
     CJOC -.->|Manage| Controller1
     CJOC -.->|Manage| Controller2
+
+    %% Legend Subgraph
+    subgraph Legend
+        L1[External/Web Traffic] --- L2[Storage & Sync] --- L3[SSH Connections] --- L4[Management/Control] --- L5[ ]
+    end
+
+    %% Apply Styles to Diagram
+    linkStyle 0,1,2,3 stroke:#2ecc71,stroke-width:2px;          
+    linkStyle 4,5,6,7,8,9 stroke:#3498db,stroke-width:2px;    
+    linkStyle 10,11 stroke:#e67e22,stroke-width:2px;          
+    linkStyle 12,13 stroke:#9b59b6,stroke-width:2px,stroke-dasharray: 5 5;
+
+    %% Apply Styles to Legend Lines
+    linkStyle 14 stroke:#2ecc71,stroke-width:4px;
+    linkStyle 15 stroke:#3498db,stroke-width:4px;
+    linkStyle 16 stroke:#e67e22,stroke-width:4px;
+    linkStyle 17 stroke:#9b59b6,stroke-width:4px,stroke-dasharray: 5 5;
+    
+    %% Make Legend nodes look like simple labels
+    style Legend fill:#f9f9f9,stroke:#333,stroke-width:1px
+    style L1 fill:none,stroke:none
+    style L2 fill:none,stroke:none
+    style L3 fill:none,stroke:none
+    style L4 fill:none,stroke:none
+    style L5 fill:none,stroke:none
 ```
 
 ## Request Flow
