@@ -55,6 +55,7 @@ graph TD
     Controller1 <-->|Shared JENKINS_HOME| JenkinsHome[(Shared Local Volume)]
     Controller2 <-->|Shared JENKINS_HOME| JenkinsHome
     
+    Controller1 <-->|hazelcast 5701| Controller2
     Controller1 <-->|Independent Cache| Cache1[(Replica 1 Cache)]
     Controller2 <-->|Independent Cache| Cache2[(Replica 2 Cache)]
     
@@ -85,12 +86,14 @@ graph TD
     Controller1 <-->|Shared JENKINS_HOME| JenkinsHome[(Shared Local Volume)]
     Controller2 <-->|Shared JENKINS_HOME| JenkinsHome
     
+    Controller1 <-->|hazelcast 5701| Controller2
     Controller1 <-->|Independent Cache| Cache1[(Replica 1 Cache)]
     Controller2 <-->|Independent Cache| Cache2[(Replica 2 Cache)]
     
     Controller1 -->|SSH| SSHAgent[SSH Agent]
     Controller2 -->|SSH| SSHAgent
     
+
     CJOC -.->|Manage| Controller1
     CJOC -.->|Manage| Controller2
 ```
