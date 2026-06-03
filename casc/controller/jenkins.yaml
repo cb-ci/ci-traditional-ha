@@ -13,9 +13,6 @@ credentials:
               username: "jenkins"
 jenkins:
   authorizationStrategy: "cloudBeesRoleBasedAccessControl"
-  crumbIssuer:
-    standard:
-      excludeClientIPFromCrumb: true
   clouds:
     - "operationsCenterAgentProvisioningService"
   nodes:

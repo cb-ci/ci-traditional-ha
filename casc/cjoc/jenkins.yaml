@@ -1,8 +1,5 @@
 jenkins:
   authorizationStrategy: "cloudBeesRoleBasedAccessControl"
-  crumbIssuer:
-    standard:
-      excludeClientIPFromCrumb: true
   numExecutors: 1
   securityRealm:
     local:
