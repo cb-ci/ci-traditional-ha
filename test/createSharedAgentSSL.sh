@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+
+# scripts use paths relative to test/ (../ssl, ./agent_secret.groovy)
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 #
 # Script to create and launch a Secure Shared Agent connected to CJOC.
 # It uses the CasC bundle management API to provision the agent, retrieves the secret,

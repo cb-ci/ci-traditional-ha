@@ -3,6 +3,9 @@
 # This script verifies the connection to controller replicas through haproxy and printgs out the active replica and controller (cookie)
 # See curl headers: https://daniel.haxx.se/blog/2022/03/24/easier-header-picking-with-curl
 
+# scripts rely on repo-root relative paths (.env, docker-compose.yaml)
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
+
 source .env
 # comment/disable when not using ssl
 source .env-ssl

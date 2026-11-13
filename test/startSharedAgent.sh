@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# scripts use paths relative to test/ (../ssl, ./agent_secret.groovy)
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
+
 export SECRET=${1:-"YOUR_AGENT_SECRET"}
 curl -kO https://oc.ha/jnlpJars/agent.jar
 chmod 755 agent.jar
