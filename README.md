@@ -16,6 +16,9 @@ The lab features the following containers:
 
 # Prerequisites
 
+**CloudBees CI License:** The demo requires a CloudBees CI wildlcard license. The license is stored in the `license.crt` and `license.key` files in the root of the project.
+**IF YOU DONT HAVE A LICENSE; THE STACK WILL NOT START**
+
 The demo has been verified with:
 
 * **OS:** macOS 14.7
@@ -200,7 +203,7 @@ You will find a controller running in HA mode with a pre-configured SSH agent an
 # Operations and Maintenance
 
 | Action | Command | Description |
-|--------|---------|-------------|
+| -------- | --------- | ------------- |
 | **Start Environment** | `./up.sh` (or `./up.sh ssl=true`) | Initializes volumes, config, and starts containers. |
 | **Stop Environment** | `./down.sh` | Safely stops all containers. |
 | **Rolling Restart Controllers** | `./test/controllersRollingRestart.sh` | Performs a rolling restart of the HA controllers. |
